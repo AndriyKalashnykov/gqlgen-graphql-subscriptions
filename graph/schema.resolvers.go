@@ -6,14 +6,15 @@ package graph
 import (
 	"context"
 	"errors"
-	"golang-graphql-subscriptions/graph/generated"
-	"golang-graphql-subscriptions/graph/model"
 	"log"
 
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 	"github.com/go-redis/redis"
 	"github.com/thanhpk/randstr"
 )
 
+// CreateMessage is the resolver for the createMessage field.
 func (r *mutationResolver) CreateMessage(ctx context.Context, message string) (*model.Message, error) {
 	m := model.Message{
 		Message: message,
@@ -30,6 +31,7 @@ func (r *mutationResolver) CreateMessage(ctx context.Context, message string) (*
 	return &m, nil
 }
 
+// Messages is the resolver for the messages field.
 func (r *queryResolver) Messages(ctx context.Context) ([]*model.Message, error) {
 	streams, err := r.RedisClient.XRead(&redis.XReadArgs{
 		Streams: []string{"room", "0"},
@@ -51,6 +53,7 @@ func (r *queryResolver) Messages(ctx context.Context) ([]*model.Message, error) 
 	return ms, nil
 }
 
+// MessageCreated is the resolver for the messageCreated field.
 func (r *subscriptionResolver) MessageCreated(ctx context.Context) (<-chan *model.Message, error) {
 	token := randstr.Hex(16)
 	mc := make(chan *model.Message, 1)

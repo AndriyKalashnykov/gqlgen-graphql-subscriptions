@@ -1,2 +1,3 @@
-# golang-graphql-subscriptions
-GraphQL Subscriptions example with Go
+# gqlgen-graphql-subscriptions
+
+GraphQL Subscriptions with Go and gqlgen

@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-redis/redis"
 
-	"golang-graphql-subscriptions/graph/model"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 )
 
 type Resolver struct {

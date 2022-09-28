@@ -1,10 +1,11 @@
 package graphql
 
 import (
-	"golang-graphql-subscriptions/graph"
-	"golang-graphql-subscriptions/graph/generated"
 	"net/http"
 	"time"
+
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
 
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"
