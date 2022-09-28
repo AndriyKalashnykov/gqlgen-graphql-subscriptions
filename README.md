@@ -5,7 +5,7 @@ GraphQL Subscriptions with Go and gqlgen
 ### Requirements
 
 - [go 1.18](https://go.dev/doc/install)
-- [gqlgen](github.com/99designs/gqlgen)
+- [gqlgen](https://github.com/99designs/gqlgen)
 - [docker](https://docs.docker.com/engine/install/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 - [curl](https://help.ubidots.com/en/articles/2165289-learn-how-to-install-run-curl-on-windows-macosx-linux)
