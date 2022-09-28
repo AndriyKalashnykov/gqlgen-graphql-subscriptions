@@ -35,7 +35,7 @@ export const Component: React.VFC = () => {
     setInputValue(e.target.value)
   }, [])
 
-  const handleClick = useCallback(async (e) => {
+  const handleClick = useCallback(async (e: any) => {
     e.preventDefault()
     await createMessage({ variables: { message: inputValue } })
   }, [inputValue, createMessage])

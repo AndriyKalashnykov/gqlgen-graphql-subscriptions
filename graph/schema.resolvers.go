@@ -10,7 +10,7 @@ import (
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
-	"github.com/go-redis/redis"
+	redis "github.com/go-redis/redis/v9"
 	"github.com/thanhpk/randstr"
 )
 
@@ -20,9 +20,10 @@ func (r *mutationResolver) CreateMessage(ctx context.Context, message string) (*
 		Message: message,
 	}
 
-	r.RedisClient.XAdd(&redis.XAddArgs{
+	r.RedisClient.XAdd(ctx, &redis.XAddArgs{
 		Stream: "room",
 		ID:     "*",
+		MaxLen: 1, // max elements to store
 		Values: map[string]interface{}{
 			"message": m.Message,
 		},
@@ -33,8 +34,9 @@ func (r *mutationResolver) CreateMessage(ctx context.Context, message string) (*
 
 // Messages is the resolver for the messages field.
 func (r *queryResolver) Messages(ctx context.Context) ([]*model.Message, error) {
-	streams, err := r.RedisClient.XRead(&redis.XReadArgs{
-		Streams: []string{"room", "0"},
+	streams, err := r.RedisClient.XRead(ctx, &redis.XReadArgs{
+		Streams: []string{"room", "$"}, // "0" and remove Block to read all
+		Block:   0,
 	}).Result()
 	if !errors.Is(err, nil) {
 		return nil, err

@@ -1,11 +1,13 @@
-version: '3'
+version: '3.8'
+
 services:
   redis:
-    image: redis:5.0.7
+    image: redis:7.0.5 # https://hub.docker.com/_/redis/tags?page=1&name=5.0.14
+    restart: always
+    container_name: redis-container
     volumes:
       - redis-data:/data
     ports:
       - '6379:6379'
 volumes:
   redis-data:
-    driver: local

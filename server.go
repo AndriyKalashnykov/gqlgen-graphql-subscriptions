@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
 
@@ -16,14 +17,16 @@ import (
 const Version = "v0.0.1"
 
 func main() {
-	client, err := datastore.NewRedisClient("localhost:6379")
+	ctx := context.Background()
+
+	client, err := datastore.NewRedisClient(ctx, "localhost:6379")
 	if !errors.Is(err, nil) {
 		log.Fatalln(err)
 	}
 	defer client.Close()
 
 	r := graph.NewResolver(client)
-	r.SubscribeRedis()
+	r.SubscribeRedis(ctx)
 	srv := graphql.NewGraphQLServer(r)
 
 	e := router.NewRouter(echo.New(), srv)

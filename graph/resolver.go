@@ -3,11 +3,12 @@
 package graph
 
 import (
+	"context"
 	"errors"
 	"log"
 	"sync"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v9"
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 )
@@ -26,14 +27,15 @@ func NewResolver(client *redis.Client) *Resolver {
 	}
 }
 
-func (r *Resolver) SubscribeRedis() {
+func (r *Resolver) SubscribeRedis(ctx context.Context) {
 	log.Println("Start Redis Stream...")
 
 	go func() {
 		for {
 			log.Println("Stream starting...")
-			streams, err := r.RedisClient.XRead(&redis.XReadArgs{
+			streams, err := r.RedisClient.XRead(ctx, &redis.XReadArgs{
 				Streams: []string{"room", "$"},
+				Count:   1,
 				Block:   0,
 			}).Result()
 			if !errors.Is(err, nil) {

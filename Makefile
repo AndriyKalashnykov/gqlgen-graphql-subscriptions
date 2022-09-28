@@ -8,7 +8,7 @@ help:
 	@clear
 	@echo "Usage: make COMMAND"
 	@echo "Commands :"
-	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-14s\033[0m - %s\n", $$1, $$2}'
+	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-16s\033[0m - %s\n", $$1, $$2}'
 
 #clean: @ Cleanup
 clean:
@@ -27,11 +27,11 @@ test: generate
 	@export GOFLAGS=$(GOFLAGS); go test -v ./...
 
 #build: @ Build GraphQL API
-build:
+build: generate
 	@export GOFLAGS=$(GOFLAGS); go build -o ./.bin/server server.go
 
 #run: @ Run GraphQL API
-run:
+run: build
 	@export GOFLAGS=$(GOFLAGS); go run server.go
 
 #image: @ Build Docker image
@@ -62,3 +62,22 @@ update: clean
 #version: @ Print current version(tag)
 version:
 	@echo ${VERSION}
+
+#redis-up: @ Start Redis
+redis-up: redis-down
+	docker-compose up
+
+#redis-down: @ Stop Redis
+redis-down:
+	docker-compose down -v --remove-orphans
+
+#frontend-run: @ Run front-end
+frontend-run:
+	@cd ./frontend && yarn start
+
+#frontend-upgrade: @ Upgrade front-end
+frontend-upgrade:
+	@rm -Rf ./frontend/node_modules && rm ./frontend/yarn.lock
+	@cd ./frontend && yarn add @apollo/client graphql subscriptions-transport-ws
+	@cd ./frontend && yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
+	@cd ./frontend && yarn upgrade --latest
