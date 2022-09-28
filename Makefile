@@ -26,13 +26,13 @@ generate:
 test: generate
 	@export GOFLAGS=$(GOFLAGS); go test -v ./...
 
-#build: @ Build Threeport GraphQL API
+#build: @ Build GraphQL API
 build:
 	@export GOFLAGS=$(GOFLAGS); go build -o ./.bin/server server.go
 
-#run: @ Run Threeport GraphQL API
+#run: @ Run GraphQL API
 run:
-	@export GOFLAGS=$(GOFLAGS); go run server.go -graphqlPort="8080" -restApiAddr="http://172.28.1.11:1323" -restApiToken=""
+	@export GOFLAGS=$(GOFLAGS); go run server.go
 
 #image: @ Build Docker image
 image: generate
@@ -62,15 +62,3 @@ update: clean
 #version: @ Print current version(tag)
 version:
 	@echo ${VERSION}
-
-#create-user: @ Execute createUser mutation
-create-user:
-	curl -s -H "Content-Type: application/json" -d '{ "query": "mutation {createUser(input:{Email:\"ben@enduser.com\",Password:\"secret\",FirstName:\"Ben\",LastName:\"Smith\",DateOfBirth:\"1985-01-30T00:00:00Z\",CountryOfResidence:\"United States\",Nationality:\"United States\"}){ID}}" }' http://localhost:8080/query | jq .
-
-#get-user: @ Execute getUser query
-get-user:
-	curl -s -H "Content-Type: application/json" -d '{ "query": "{getUser(Email:\"ben@enduser.com\"){ID FirstName}}" }' http://localhost:8080/query | jq .
-
-#get-user-by-id: @ Execute getUserById query
-get-user-by-id:
-	curl -s -H "Content-Type: application/json" -d '{ "query": "{getUserById(Id:8){ID Email FirstName LastName DateOfBirth CompanyID CountryOfResidence Nationality OtpSecret HasMfaConfigured PasswordResetToken}}" }' http://localhost:8080/query | jq .
