@@ -17,7 +17,7 @@ clean:
 	@mkdir ./.bin/
 
 #generate: @ Generate GraphQL go source code
-generate: clean
+generate:
 	@sudo rm -rf graph/model
 	@sudo rm -rf graph/generated
 	@export GOFLAGS=$(GOFLAGS); go run github.com/99designs/gqlgen generate
