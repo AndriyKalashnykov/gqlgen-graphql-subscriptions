@@ -30,6 +30,9 @@ test             - Run tests
 build            - Build GraphQL API
 run              - Run GraphQL API
 image            - Build Docker image
+build-frontend   - Build JS client frontend
+run-frontend     - Run JS client frontend
+image-frontend   - Build JS client Docker image
 get              - Download and install packages
 deps             - Download and install dependencies
 release          - Create and push a new tag. Modify `Version` field in `server.go` as it's used as an actual tag name
@@ -37,9 +40,6 @@ update           - Update dependencies to latest versions
 version          - Print current version(tag)
 redis-up         - Start Redis
 redis-down       - Stop Redis
-frontend-run     - Run front-end
-frontend-upgrade - Upgrade front-end
-
 ```
 
 ### References
