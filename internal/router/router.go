@@ -10,6 +10,7 @@ import (
 )
 
 func NewRouter(e *echo.Echo, srv *handler.Server) *echo.Echo {
+	e.HideBanner = true
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.GET("/", func(c echo.Context) error {

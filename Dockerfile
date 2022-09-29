@@ -13,7 +13,7 @@ RUN go mod download
 COPY gqlgen.yml gqlgen.yml
 COPY server.go server.go
 COPY graph/ graph/
-COPY infrastructure/ infrastructure/
+COPY internal/ internal/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o server server.go
