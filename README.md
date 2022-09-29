@@ -41,6 +41,30 @@ version          - Print current version(tag)
 redis-up         - Start Redis
 redis-down       - Stop Redis
 ```
+### Run
+
+#### Terminal 1
+
+Start Redis
+```shell
+make redis-up
+```
+
+#### Terminal 2
+
+Run GraphQL API
+```shell
+make run
+```
+
+#### Terminal 3
+
+Run JS client frontend. Command below should open a browser at [http://localhost:3000](http://localhost:3000).
+Open another window at [http://localhost:3000](http://localhost:3000) post a message and see it appear in the other window.
+
+```shell
+make run-frontend
+```
 
 ### References
 
