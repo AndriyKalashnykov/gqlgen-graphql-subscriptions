@@ -6,3 +6,4 @@ vendor/
 graph/generated/
 graph/model/
 frontend/node_modules
+frontend/build

@@ -33,3 +33,6 @@ jobs:
 
     - name: Build Docker image
       run: make image
+
+    - name: Build JS client Docker image
+      run: make image-frontend

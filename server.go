@@ -8,9 +8,9 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph"
-	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/infrastructure/datastore"
-	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/infrastructure/graphql"
-	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/infrastructure/router"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/datastore"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/graphql"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/router"
 )
 
 // Version is a constant variable containing the version

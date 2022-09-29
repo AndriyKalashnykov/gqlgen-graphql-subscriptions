@@ -36,7 +36,11 @@ run: build
 
 #image: @ Build Docker image
 image: generate
-	docker build  -t gqlgen-graphql-subscriptions  .
+	@docker build  -t gqlgen-graphql-subscriptions  .
+
+#image-frontend: @ Build JS client Docker image
+image-frontend:
+	@cd ./frontend && yarn install && yarn build && docker build -t gqlgen-graphql-frontend  .
 
 #get: @ Download and install packages
 get: clean
