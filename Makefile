@@ -47,8 +47,8 @@ run-frontend:
 	@cd ./frontend && yarn start
 
 #image-frontend: @ Build JS client Docker image
-image-frontend:
-	@cd ./frontend && yarn install && yarn build && docker build -t gqlgen-graphql-frontend  .
+image-frontend: build-frontend
+	@cd ./frontend  && docker build -t gqlgen-graphql-frontend  .
 
 #get: @ Download and install packages
 get: clean
