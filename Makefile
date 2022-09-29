@@ -40,7 +40,7 @@ image: generate
 
 #build-frontend: @ Build JS client frontend
 build-frontend:
-	@rm -Rf ./frontend/node_modules && rm ./frontend/yarn.lock && cd ./frontend && yarn install && yarn upgrade --latest && yarn build
+	@rm -Rf ./frontend/node_modules && rm -f ./frontend/yarn.lock && cd ./frontend && yarn install && yarn upgrade --latest && yarn build
 
 #run-frontend: @ Run JS client frontend
 run-frontend:
