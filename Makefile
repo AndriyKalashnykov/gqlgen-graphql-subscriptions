@@ -40,7 +40,7 @@ image: generate
 
 #build-frontend: @ Build JS client frontend
 build-frontend:
-	@cd ./frontend && yarn install && yarn upgrade --latest && yarn build
+	@rm -Rf ./frontend/node_modules && rm ./frontend/yarn.lock && cd ./frontend && yarn install && yarn upgrade --latest && yarn build
 
 #run-frontend: @ Run JS client frontend
 run-frontend:
@@ -82,14 +82,3 @@ redis-up: redis-down
 #redis-down: @ Stop Redis
 redis-down:
 	docker-compose down -v --remove-orphans
-
-#frontend-run: @ Run front-end
-frontend-run:
-	@cd ./frontend && yarn start
-
-#frontend-upgrade: @ Upgrade front-end
-frontend-upgrade:
-	@rm -Rf ./frontend/node_modules && rm ./frontend/yarn.lock
-	@cd ./frontend && yarn add @apollo/client graphql subscriptions-transport-ws
-	@cd ./frontend && yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
-	@cd ./frontend && yarn upgrade --latest

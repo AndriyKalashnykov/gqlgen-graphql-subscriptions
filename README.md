@@ -8,6 +8,12 @@ GraphQL Subscriptions with Go and gqlgen
 - [gqlgen](https://github.com/99designs/gqlgen)
 - [docker](https://docs.docker.com/engine/install/)
 - [docker-compose](https://docs.docker.com/compose/install/)
+- [nvm](https://github.com/nvm-sh/nvm#install--update-script)
+  ```shell
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+  nvm install v14.17.6
+  nvm use nvm v14.17.6
+  ```
 - [curl](https://help.ubidots.com/en/articles/2165289-learn-how-to-install-run-curl-on-windows-macosx-linux)
 - [jq](https://github.com/stedolan/jq/wiki/Installation)
 
