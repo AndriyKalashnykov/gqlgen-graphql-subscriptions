@@ -11,7 +11,7 @@ import (
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
-	redis "github.com/go-redis/redis/v9"
+	redis "github.com/redis/go-redis/v9"
 	"github.com/thanhpk/randstr"
 )
 

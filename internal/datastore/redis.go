@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/go-redis/redis/v9"
+	"github.com/redis/go-redis/v9"
 )
 
 func NewRedisClient(ctx context.Context, url string) (*redis.Client, error) {
