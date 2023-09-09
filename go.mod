@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/99designs/gqlgen v0.17.37
-	github.com/go-redis/redis/v9 v9.1.0
+	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/gorilla/websocket v1.5.0
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/thanhpk/randstr v1.0.6
