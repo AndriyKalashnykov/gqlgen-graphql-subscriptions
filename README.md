@@ -77,5 +77,3 @@ make run-frontend
 * https://pkg.go.dev/github.com/go-redis/redis/v9
 * https://towardsdev.com/scalable-event-streaming-with-redis-streams-and-go-dee5fbe8982c
 * https://github.com/gmrdn/redis-streams-go
-
-* go mod edit -replace="github.com/go-redis/redis/v9=github.com/redis/go-redis/v9@latest"
