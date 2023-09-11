@@ -4,10 +4,10 @@ GraphQL Subscriptions with Go and gqlgen
 
 ### Requirements
 
-* [gvm](https://github.com/moovweb/gvm) Go 1.19
+* [gvm](https://github.com/moovweb/gvm) Go 1.21
     ```bash
-    gvm install go1.19 --prefer-binary --with-build-tools --with-protobuf
-    gvm use go1.19 --default
+    gvm install go1.21.1 --prefer-binary --with-build-tools --with-protobuf
+    gvm use go1.21.1 --default
     ```
 - [gqlgen](https://github.com/99designs/gqlgen)
 - [docker](https://docs.docker.com/engine/install/)
