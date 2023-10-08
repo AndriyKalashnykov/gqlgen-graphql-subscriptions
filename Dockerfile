@@ -1,4 +1,4 @@
-FROM golang:1.21.1 as builder
+FROM golang:1.21.2 as builder
 
 WORKDIR /source
 # Copy the Go Modules manifests
