@@ -4,9 +4,9 @@ go 1.21
 
 require (
 	github.com/99designs/gqlgen v0.17.40
-	github.com/gorilla/websocket v1.5.0
-	github.com/labstack/echo/v4 v4.11.2
-	github.com/redis/go-redis/v9 v9.2.1
+	github.com/gorilla/websocket v1.5.1
+	github.com/labstack/echo/v4 v4.11.3
+	github.com/redis/go-redis/v9 v9.3.0
 	github.com/thanhpk/randstr v1.0.6
 	github.com/vektah/gqlparser/v2 v2.5.10
 )
@@ -32,6 +32,6 @@ require (
 	golang.org/x/time v0.3.0 // indirect
 )
 
-replace github.com/redis/go-redis/v9 => github.com/go-redis/redis/v9 v9.2.1
+replace github.com/redis/go-redis/v9 => github.com/go-redis/redis/v9 v9.3.0
 
-replace github.com/go-redis/redis/v9 => github.com/redis/go-redis/v9 v9.2.1
+replace github.com/go-redis/redis/v9 => github.com/redis/go-redis/v9 v9.3.0
