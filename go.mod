@@ -3,7 +3,7 @@ module github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
 go 1.21
 
 require (
-	github.com/99designs/gqlgen v0.17.40
+	github.com/99designs/gqlgen v0.17.41
 	github.com/gorilla/websocket v1.5.1
 	github.com/labstack/echo/v4 v4.11.3
 	github.com/redis/go-redis/v9 v9.3.0
