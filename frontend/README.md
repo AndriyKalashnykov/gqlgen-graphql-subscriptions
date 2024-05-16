@@ -6,7 +6,7 @@ The following will re-install the node modules and start front-end
 
 ```bash
 cd frontend
-rm -Rf node_modules && rm yarn.lock
+
 yarn add @apollo/client graphql subscriptions-transport-ws svgo
 yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
 yarn add @chakra-ui/styled-system @babel/core @testing-library/dom @babel/plugin-syntax-flow @babel/plugin-transform-react-jsx
