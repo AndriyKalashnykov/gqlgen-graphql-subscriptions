@@ -1,6 +1,6 @@
 module github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
 
-go 1.22
+go 1.23
 
 require (
 	github.com/99designs/gqlgen v0.17.49
@@ -25,11 +25,11 @@ require (
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
-	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
-	golang.org/x/time v0.5.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/time v0.6.0 // indirect
 )
 
 replace github.com/redis/go-redis/v9 => github.com/go-redis/redis/v9 v9.6.1
