@@ -13,13 +13,13 @@ help:
 #clean: @ Cleanup
 clean:
 	@rm -rf ./.bin/
-	@sudo rm -rf vendor/
+	@rm -rf vendor/
 	@mkdir ./.bin/
 
 #generate: @ Generate GraphQL go source code
 generate:
-	@sudo rm -rf graph/model
-	@sudo rm -rf graph/generated
+	@rm -rf graph/model
+	@rm -rf graph/generated
 	@export GOFLAGS=$(GOFLAGS); go run github.com/99designs/gqlgen generate
 
 #test: @ Run tests
@@ -57,6 +57,7 @@ get: clean
 #deps: @ Download and install dependencies
 deps:
 	@export GOFLAGS=$(GOFLAGS); go install github.com/99designs/gqlgen@latest
+	@pnpm install -g yarn
 
 #release: @ Create and push a new tag. Modify `Version` field in `server.go` as it's used as an actual tag name
 release:
