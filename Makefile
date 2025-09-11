@@ -36,11 +36,11 @@ run: build
 
 #image: @ Build Docker image
 image: generate
-	@docker build  -t gqlgen-graphql-subscriptions  .
+	@docker buildx build --load -t gqlgen-graphql-subscriptions  .
 
 #build-frontend: @ Build JS client frontend
 build-frontend:
-	@rm -Rf ./frontend/node_modules && rm -f ./frontend/yarn.lock && cd ./frontend && yarn install && yarn upgrade --latest && yarn build
+	@cd ./frontend && yarn install && yarn build
 
 #run-frontend: @ Run JS client frontend
 run-frontend:
