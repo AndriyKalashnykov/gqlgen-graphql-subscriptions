@@ -4,7 +4,7 @@ services:
   redis:
     # https://hub.docker.com/_/redis
     # https://hub.docker.com/_/redis/tags?page=1&name=7.&ordering=last_updated
-    image: redis:7.4.1
+    image: redis:8.2.1@sha256:acb90ced0bd769b7c04cb4c32c4494ba7b3e0ee068bdbfff0eeb0d31c2a21078
     restart: always
     container_name: redis-container
     volumes:
