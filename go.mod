@@ -40,4 +40,4 @@ require (
 )
 
 // Pin golang.org/x/tools to a version compatible with Go 1.23.
-replace golang.org/x/tools => golang.org/x/tools v0.28.0
+replace golang.org/x/tools => golang.org/x/tools v0.37.0
