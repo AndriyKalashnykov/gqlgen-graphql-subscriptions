@@ -35,6 +35,7 @@
   "labels": [
     "dependencies"
   ],
+  "requiredStatusChecks": ["ci"],
   "packageRules": [
     {
       "description": "Automerge non-major updates",
