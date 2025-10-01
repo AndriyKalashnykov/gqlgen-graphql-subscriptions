@@ -11,7 +11,6 @@
     "schedule:daily",
     ":automergePatch",
     ":automergePr",
-    ":automergeRequireAllStatusChecks",
     ":prConcurrentLimitNone",
     ":separatePatchReleases",
     "replacements:all",
@@ -35,7 +34,7 @@
   "labels": [
     "dependencies"
   ],
-  "requiredStatusChecks": ["ci"],
+  "requiredStatusChecks": ["ci / ci"],
   "packageRules": [
     {
       "description": "Automerge non-major updates",
