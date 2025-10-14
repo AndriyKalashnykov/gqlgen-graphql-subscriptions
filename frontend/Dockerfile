@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/nginxinc/nginx-unprivileged/tags?page=1&ordering=last_updated
-FROM nginxinc/nginx-unprivileged:1.29@sha256:abdc43cf1bf52b0a435e5c1f57f030afb0cc09134c169ddce0d1eab0e9e7ac7a
+FROM nginxinc/nginx-unprivileged:1.29@sha256:5585436a6e28e4164293292014a96cee64ba3eac1d866b1449cac493abe27cb0
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
 ENV APT="apt-get --no-install-recommends --yes"
