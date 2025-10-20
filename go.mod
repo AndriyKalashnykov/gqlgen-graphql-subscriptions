@@ -1,6 +1,6 @@
 module github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
 
-go 1.25.1
+go 1.25.3
 
 require (
 	github.com/99designs/gqlgen v0.17.81
@@ -14,16 +14,16 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	// ... existing code ...
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
-	golang.org/x/net v0.44.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
-	golang.org/x/time v0.13.0 // indirect
+	golang.org/x/crypto v0.43.0 // indirect
+	golang.org/x/net v0.46.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/time v0.14.0 // indirect
 )
 
 require (
 	github.com/labstack/echo/v4 v4.13.4
-	github.com/redis/go-redis/v9 v9.14.0
+	github.com/redis/go-redis/v9 v9.14.1
 	github.com/thanhpk/randstr v1.0.6
 )
 
