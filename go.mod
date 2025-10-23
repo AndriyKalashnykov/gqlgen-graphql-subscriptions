@@ -23,7 +23,7 @@ require (
 
 require (
 	github.com/labstack/echo/v4 v4.13.4
-	github.com/redis/go-redis/v9 v9.14.1
+	github.com/redis/go-redis/v9 v9.16.0
 	github.com/thanhpk/randstr v1.0.6
 )
 
