@@ -3,7 +3,7 @@ module github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
 go 1.25.3
 
 require (
-	github.com/99designs/gqlgen v0.17.81
+	github.com/99designs/gqlgen v0.17.83
 	github.com/gorilla/websocket v1.5.3
 	// ... existing code ...
 	github.com/vektah/gqlparser/v2 v2.5.31
@@ -14,10 +14,10 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	// ... existing code ...
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.43.0 // indirect
-	golang.org/x/net v0.46.0 // indirect
-	golang.org/x/sys v0.37.0 // indirect
-	golang.org/x/text v0.30.0 // indirect
+	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 )
 
