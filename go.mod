@@ -14,7 +14,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	// ... existing code ...
 	github.com/valyala/fasttemplate v1.2.2 // indirect
-	golang.org/x/crypto v0.44.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.31.0 // indirect
@@ -23,7 +23,7 @@ require (
 
 require (
 	github.com/labstack/echo/v4 v4.13.4
-	github.com/redis/go-redis/v9 v9.16.0
+	github.com/redis/go-redis/v9 v9.17.0
 	github.com/thanhpk/randstr v1.0.6
 )
 
