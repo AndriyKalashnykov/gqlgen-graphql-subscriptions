@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/labstack/echo/v4 v4.13.4
+	github.com/labstack/echo/v4 v4.14.0
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/thanhpk/randstr v1.0.6
 )
@@ -40,4 +40,4 @@ require (
 )
 
 // Pin golang.org/x/tools to a version compatible with Go 1.23.
-replace golang.org/x/tools => golang.org/x/tools v0.39.0
+replace golang.org/x/tools => golang.org/x/tools v0.40.0
