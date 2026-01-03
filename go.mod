@@ -1,9 +1,9 @@
 module github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
 
-go 1.25.4
+go 1.25.5
 
 require (
-	github.com/99designs/gqlgen v0.17.84
+	github.com/99designs/gqlgen v0.17.85
 	github.com/gorilla/websocket v1.5.3
 	// ... existing code ...
 	github.com/vektah/gqlparser/v2 v2.5.31
@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/labstack/echo/v4 v4.14.0
+	github.com/labstack/echo/v4 v4.15.0
 	github.com/redis/go-redis/v9 v9.17.2
 	github.com/thanhpk/randstr v1.0.6
 )
