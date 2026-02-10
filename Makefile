@@ -43,7 +43,7 @@ build-frontend:
 	@cd ./frontend && yarn install && yarn build
 
 #run-frontend: @ Run JS client frontend
-run-frontend:
+run-frontend: build-frontend
 	@cd ./frontend && yarn start
 
 #image-frontend: @ Build JS client Docker image
@@ -78,8 +78,8 @@ version:
 
 #redis-up: @ Start Redis
 redis-up: redis-down
-	docker-compose up
+	docker compose up
 
 #redis-down: @ Stop Redis
 redis-down:
-	docker-compose down -v --remove-orphans
+	docker compose down -v --remove-orphans

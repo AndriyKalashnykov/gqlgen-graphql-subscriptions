@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/datastore"
@@ -30,5 +30,7 @@ func main() {
 	srv := graphql.NewGraphQLServer(r)
 
 	e := router.NewRouter(echo.New(), srv)
-	e.Logger.Fatal(e.Start(":8080"))
+	if err := e.Start(":8080"); err != nil {
+		log.Fatal(err)
+	}
 }

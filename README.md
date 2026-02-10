@@ -22,7 +22,7 @@ GraphQL Subscriptions with Go and gqlgen
   nvm install --lts
   nvm use --lts
   npm install npm --global
-  cd ./frontend && pnpm install -g yarn
+  npm install -g yarn
   ```
 - [curl](https://help.ubidots.com/en/articles/2165289-learn-how-to-install-run-curl-on-windows-macosx-linux)
 - [jq](https://github.com/stedolan/jq/wiki/Installation)
