@@ -8,19 +8,20 @@ GraphQL Subscriptions with Go and gqlgen
 
 ### Requirements
 
-* [gvm](https://github.com/moovweb/gvm) Go 1.23
+* [gvm](https://github.com/moovweb/gvm) Go
     ```bash
-    gvm install go1.23 --prefer-binary --with-build-tools --with-protobuf
-    gvm use go1.23 --default
+    gvm install go1.26.0 --prefer-binary --with-build-tools --with-protobuf
+    gvm use go1.26.0 --default
     ```
 - [gqlgen](https://github.com/99designs/gqlgen)
 - [docker](https://docs.docker.com/engine/install/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 - [nvm](https://github.com/nvm-sh/nvm#install--update-script)
   ```shell
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-  nvm install v22.1.0
-  nvm use nvm v22.1.0
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+  nvm install --lts
+  nvm use --lts
+  npm install npm --global
   cd ./frontend && pnpm install -g yarn
   ```
 - [curl](https://help.ubidots.com/en/articles/2165289-learn-how-to-install-run-curl-on-windows-macosx-linux)
