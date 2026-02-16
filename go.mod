@@ -18,7 +18,7 @@ require (
 
 require (
 	github.com/labstack/echo/v5 v5.0.3
-	github.com/redis/go-redis/v9 v9.17.3
+	github.com/redis/go-redis/v9 v9.18.0
 	github.com/thanhpk/randstr v1.0.6
 )
 
