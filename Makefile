@@ -31,7 +31,7 @@ build: generate
 	@export GOFLAGS=$(GOFLAGS); go build -o ./.bin/server server.go
 
 #run: @ Run GraphQL API
-run: build
+run: build kill-backend
 	@export GOFLAGS=$(GOFLAGS); go run server.go
 
 #image: @ Build Docker image
@@ -83,3 +83,10 @@ redis-up: redis-down
 #redis-down: @ Stop Redis
 redis-down:
 	docker compose down -v --remove-orphans
+
+#kill-backend: @ Kill all backend server processes and free port 8080
+kill-backend:
+	@ps aux | grep -E "(\.bin/server|server\.go)" | grep -v grep | awk '{print $$2}' | xargs -r kill -9 && echo "Killed old server processes" || echo "No server processes found"
+	@sleep 1
+	@lsof -i:8080 2>/dev/null || echo "Port 8080 is now free"
+

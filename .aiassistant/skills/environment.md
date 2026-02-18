@@ -48,3 +48,38 @@ This project uses:
 GOFLAGS=-mod=mod
 ```
 Set in Makefile for all Go operations.
+
+## Common Commands
+
+### Backend (Go GraphQL Server)
+```bash
+make build          # Build the server binary to .bin/server
+make run            # Build and run the server (port 8080)
+make test           # Run tests with coverage
+make generate       # Regenerate GraphQL code from schema
+make kill-backend   # Kill all server processes and free port 8080
+```
+
+### Frontend (React App)
+```bash
+make build-frontend # Install deps and build frontend
+make run-frontend   # Run frontend dev server (port 3000)
+```
+
+### Redis
+```bash
+make redis-up       # Start Redis in Docker (port 6379)
+make redis-down     # Stop Redis and clean up
+```
+
+### Development Workflow
+1. Start Redis: `make redis-up` (in separate terminal)
+2. Start backend: `make run` (in separate terminal)
+3. Start frontend: `make run-frontend` (in separate terminal)
+4. Access app: http://localhost:3000
+5. Access GraphQL playground: http://localhost:8080/playground
+
+### Troubleshooting
+- Backend port busy: `make kill-backend`
+- Redis not responding: `make redis-down && make redis-up`
+- Frontend not updating: Check if dev server reloaded (should auto-reload)

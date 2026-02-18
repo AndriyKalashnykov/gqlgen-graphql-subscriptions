@@ -139,21 +139,50 @@ func NewResolver(client RedisClient) *Resolver {
   - Input validation/transformation
   - Calling service methods
   - Error handling/formatting
+- Never put database/Redis operations directly in resolvers
+
+### Service Layer Patterns
+**Create dedicated service structs:**
+```go
+type MessageService struct {
+    redis datastore.RedisClient
+}
+
+func NewMessageService(redis datastore.RedisClient) *MessageService {
+    return &MessageService{redis: redis}
+}
+```
+
+**Separate concerns:**
+- `PublishMessage()` - synchronous operations (mutations)
+- `ReadMessages()` - query operations (fetch existing data)
+- `StreamMessages()` - continuous operations (subscriptions)
+
+**Each method should:**
+- Validate inputs
+- Handle errors with wrapped context
+- Return domain models (not database types)
 
 ### Redis Operations
 - Extract stream names and configuration to constants
-- Consider a Redis service wrapper for complex operations
+- Use a Redis service wrapper for ALL operations
 - Handle connection errors consistently
+- **CRITICAL**: Different XREAD params for queries vs subscriptions (see golang.md)
+- Always validate XREAD parameters before deploying
 
 ### Error Handling
 - Use consistent `errors.Is(err, nil)` pattern
 - Wrap errors with context: `fmt.Errorf("failed to publish message: %w", err)`
 - Don't log errors in libraries/services - return them
+- Handle `redis.Nil` separately from other errors
+- Validate inputs before calling external services
 
 ### Concurrency
 - Extract goroutine logic into named functions
 - Use sync.Once for initialization
 - Document goroutine lifecycle and cleanup
+- Use select statements for context cancellation
+- Always close channels when done producing
 
 ## What NOT to Refactor
 

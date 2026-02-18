@@ -73,6 +73,19 @@ This is a GraphQL subscriptions service built with:
 - Configure `MaxLen` to limit stream size
 - Use proper error handling with `errors.Is(err, nil)`
 
+### Redis XREAD Parameters - CRITICAL
+**Queries vs Subscriptions:**
+- **Queries** (fetch existing messages):
+  - Stream ID: `"0"` (read from beginning) NOT `"$"` (new messages only)
+  - Block: `-1` (don't block) or omit
+  - Count: Set limit (e.g., `100`) to prevent loading too many messages
+- **Subscriptions** (real-time updates):
+  - Stream ID: `"$"` (only new messages)
+  - Block: `0` (block indefinitely waiting for new messages)
+  - Count: `1` or small number for real-time delivery
+
+**Common Pitfall:** Using `Block: 0` with queries causes infinite hanging. Always use non-blocking reads for queries.
+
 ## Web Framework (Echo v5)
 
 ### Router Setup

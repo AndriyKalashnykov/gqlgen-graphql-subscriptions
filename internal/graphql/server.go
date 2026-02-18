@@ -2,10 +2,10 @@ package graphql
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
 	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/99designs/gqlgen/graphql/handler/extension"
@@ -23,10 +23,10 @@ func NewGraphQLServer(resolver *graph.Resolver) *handler.Server {
 			CheckOrigin: func(r *http.Request) bool {
 				return true
 			},
-			ReadBufferSize:  1024,
-			WriteBufferSize: 1024,
+			ReadBufferSize:  constants.WebSocketReadBufferSize,
+			WriteBufferSize: constants.WebSocketWriteBufferSize,
 		},
-		KeepAlivePingInterval: 10 * time.Second,
+		KeepAlivePingInterval: constants.WebSocketKeepAlivePing,
 	})
 
 	srv.AddTransport(transport.Options{})
@@ -34,11 +34,11 @@ func NewGraphQLServer(resolver *graph.Resolver) *handler.Server {
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})
 
-	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
+	srv.SetQueryCache(lru.New[*ast.QueryDocument](constants.QueryCacheSize))
 
 	srv.Use(extension.Introspection{})
 	srv.Use(extension.AutomaticPersistedQuery{
-		Cache: lru.New[string](100),
+		Cache: lru.New[string](constants.APQCacheSize),
 	})
 
 	return srv
