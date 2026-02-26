@@ -3,7 +3,7 @@ module github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
 go 1.26.0
 
 require (
-	github.com/99designs/gqlgen v0.17.86
+	github.com/99designs/gqlgen v0.17.87
 	github.com/gorilla/websocket v1.5.3
 	// ... existing code ...
 	github.com/vektah/gqlparser/v2 v2.5.31
