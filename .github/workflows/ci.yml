@@ -1,6 +1,4 @@
-name: ci
-
-run-name: ci
+name: CI
 
 on:
   push:
@@ -13,8 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 jobs:
   ci:
@@ -34,6 +31,9 @@ jobs:
 
     - name: Generate
       run: make generate
+
+    - name: Lint
+      run: make lint
 
     - name: Test
       run: make test
