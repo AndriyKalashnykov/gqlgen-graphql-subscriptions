@@ -110,4 +110,21 @@ kill-backend:
 .PHONY: help clean generate test build run image \
 	build-frontend run-frontend image-frontend \
 	get deps lint ci release update version \
-	redis-up redis-down kill-backend
+	redis-up redis-down kill-backend \
+	renovate-bootstrap renovate-validate
+
+NVM_VERSION := 0.40.4
+
+#renovate-bootstrap: @ Install nvm and npm for Renovate
+renovate-bootstrap:
+	@command -v node >/dev/null 2>&1 || { \
+		echo "Installing nvm $(NVM_VERSION)..."; \
+		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$(NVM_VERSION)/install.sh | bash; \
+		export NVM_DIR="$$HOME/.nvm"; \
+		[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh"; \
+		nvm install --lts; \
+	}
+
+#renovate-validate: @ Validate Renovate configuration
+renovate-validate: renovate-bootstrap
+	@npx --yes renovate --platform=local
