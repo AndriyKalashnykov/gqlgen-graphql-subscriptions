@@ -5,6 +5,8 @@ GOFLAGS=-mod=mod
 
 # === Tool Versions (pinned) ===
 GQLGEN_VERSION := v0.17.86
+ACT_VERSION := 0.2.78
+NVM_VERSION := 0.40.4
 
 #help: @ List available tasks
 help:
@@ -36,8 +38,8 @@ build: generate
 run: build kill-backend
 	@export GOFLAGS=$(GOFLAGS); go run server.go
 
-#image: @ Build Docker image
-image: generate
+#image-build: @ Build Docker image
+image-build: generate
 	@docker buildx build --load -t gqlgen-graphql-subscriptions .
 
 #build-frontend: @ Build JS client frontend
@@ -64,6 +66,12 @@ deps:
 	}
 	@command -v yarn >/dev/null 2>&1 || { echo "Installing yarn..."; npm install -g yarn; }
 
+#deps-act: @ Install act for local CI (idempotent)
+deps-act:
+	@command -v act >/dev/null 2>&1 || { echo "Installing act $(ACT_VERSION)..."; \
+		curl -sSfL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin v$(ACT_VERSION); \
+	}
+
 #lint: @ Run Go linter
 lint:
 	@export GOFLAGS=$(GOFLAGS); go vet ./...
@@ -71,6 +79,10 @@ lint:
 #ci: @ Run full local CI pipeline
 ci: deps generate lint test build
 	@echo "Local CI pipeline passed."
+
+#ci-run: @ Run GitHub Actions workflow locally via act
+ci-run: deps-act
+	@act push --container-architecture linux/amd64 -W .github/workflows/ci.yml
 
 #release: @ Create and push a new tag
 release:
@@ -107,14 +119,6 @@ kill-backend:
 	@sleep 1
 	@lsof -i:8080 2>/dev/null || echo "Port 8080 is now free"
 
-.PHONY: help clean generate test build run image \
-	build-frontend run-frontend image-frontend \
-	get deps lint ci release update version \
-	redis-up redis-down kill-backend \
-	renovate-bootstrap renovate-validate
-
-NVM_VERSION := 0.40.4
-
 #renovate-bootstrap: @ Install nvm and npm for Renovate
 renovate-bootstrap:
 	@command -v node >/dev/null 2>&1 || { \
@@ -128,3 +132,9 @@ renovate-bootstrap:
 #renovate-validate: @ Validate Renovate configuration
 renovate-validate: renovate-bootstrap
 	@npx --yes renovate --platform=local
+
+.PHONY: help clean generate test build run image-build \
+	build-frontend run-frontend image-frontend \
+	get deps deps-act lint ci ci-run release update version \
+	redis-up redis-down kill-backend \
+	renovate-bootstrap renovate-validate
