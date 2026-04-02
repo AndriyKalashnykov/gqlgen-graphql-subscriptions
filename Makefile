@@ -5,7 +5,7 @@ GOFLAGS=-mod=mod
 
 # === Tool Versions (pinned) ===
 GQLGEN_VERSION := v0.17.86
-ACT_VERSION := 0.2.78
+ACT_VERSION := 0.2.87
 NVM_VERSION := 0.40.4
 
 #help: @ List available tasks
