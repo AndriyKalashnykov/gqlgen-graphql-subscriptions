@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/labstack/echo/v5"
 
@@ -20,12 +21,12 @@ const Version = "v0.0.1"
 
 const redisURL = "localhost:6379"
 
-func main() {
+func run() error {
 	ctx := context.Background()
 
 	client, err := datastore.NewRedisClient(ctx, redisURL)
 	if !errors.Is(err, nil) {
-		log.Fatalf("Failed to connect to Redis at %s: %v", redisURL, err)
+		return fmt.Errorf("failed to connect to Redis at %s: %w", redisURL, err)
 	}
 	defer func() {
 		if err := client.Close(); err != nil {
@@ -41,6 +42,15 @@ func main() {
 
 	log.Printf("Starting server on %s", constants.ServerPort)
 	if err := e.Start(constants.ServerPort); err != nil {
-		log.Fatal(fmt.Errorf("server failed to start: %w", err))
+		return fmt.Errorf("server failed to start: %w", err)
+	}
+
+	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Println(err)
+		os.Exit(1)
 	}
 }

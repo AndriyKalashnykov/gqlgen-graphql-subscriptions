@@ -45,7 +45,11 @@ func TestNewRedisClient_Success(t *testing.T) {
 		t.Fatal("expected client, got nil")
 	}
 
-	defer client.Close()
+	defer func() {
+		if err := client.Close(); err != nil {
+			t.Errorf("failed to close Redis client: %v", err)
+		}
+	}()
 
 	// Verify connection
 	err = client.Ping(ctx).Err()

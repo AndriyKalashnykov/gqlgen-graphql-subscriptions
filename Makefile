@@ -4,15 +4,30 @@ VERSION := $(shell cat server.go | grep "const Version ="| cut -d"\"" -f2)
 GOFLAGS=-mod=mod
 
 # === Tool Versions (pinned) ===
+GOLANGCI_VERSION := 2.11.4
 GQLGEN_VERSION := v0.17.86
+HADOLINT_VERSION := 2.14.0
 ACT_VERSION := 0.2.87
 NVM_VERSION := 0.40.4
+
+# Parse Go version from go.mod
+GO_VERSION := $(shell grep -oP '^go \K[0-9.]+' go.mod)
+
+# Helper: run a command under the correct Go version
+# In CI, actions/setup-go provides Go directly — gvm is not needed.
+# Locally, gvm sets GOROOT/GOPATH/PATH in a subshell.
+HAS_GVM := $(shell [ -s "$$HOME/.gvm/scripts/gvm" ] && echo true || echo false)
+GVM_SHA := dd6525539fa4b771840846f8319fad303c7d0a8d2
+
+define go-exec
+$(if $(filter true,$(HAS_GVM)),bash -c '. $$GVM_ROOT/scripts/gvm && gvm use go$(GO_VERSION) >/dev/null && $(1)',bash -c '$(1)')
+endef
 
 #help: @ List available tasks
 help:
 	@echo "Usage: make COMMAND"
 	@echo "Commands :"
-	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-20s\033[0m - %s\n", $$1, $$2}'
+	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-22s\033[0m - %s\n", $$1, $$2}'
 
 #clean: @ Cleanup
 clean:
@@ -21,22 +36,22 @@ clean:
 	@mkdir ./.bin/
 
 #generate: @ Generate GraphQL go source code
-generate:
+generate: deps
 	@rm -rf graph/model
 	@rm -rf graph/generated
-	@export GOFLAGS=$(GOFLAGS); go run github.com/99designs/gqlgen generate
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go run github.com/99designs/gqlgen generate)
 
 #test: @ Run tests
 test: generate
-	@export GOFLAGS=$(GOFLAGS); go test -v ./...
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go test -v ./...)
 
 #build: @ Build GraphQL API
 build: generate
-	@export GOFLAGS=$(GOFLAGS); go build -o ./.bin/server server.go
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go build -o ./.bin/server server.go)
 
 #run: @ Run GraphQL API
 run: build kill-backend
-	@export GOFLAGS=$(GOFLAGS); go run server.go
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go run server.go)
 
 #image-build: @ Build Docker image
 image-build: generate
@@ -56,13 +71,32 @@ image-frontend: build-frontend
 
 #get: @ Download and install packages
 get: clean
-	@export GOFLAGS=$(GOFLAGS); go get . ; go mod tidy
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go get . && go mod tidy)
 
 #deps: @ Install required tools (idempotent)
 deps:
-	@command -v go >/dev/null 2>&1 || { echo "Error: Go required. See https://go.dev/dl/"; exit 1; }
-	@command -v gqlgen >/dev/null 2>&1 || { echo "Installing gqlgen $(GQLGEN_VERSION)..."; \
-		export GOFLAGS=$(GOFLAGS); go install github.com/99designs/gqlgen@$(GQLGEN_VERSION); \
+	@if [ -z "$$CI" ] && [ ! -s "$$HOME/.gvm/scripts/gvm" ]; then \
+		echo "Installing gvm (Go Version Manager)..."; \
+		curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/$(GVM_SHA)/binscripts/gvm-installer | bash -s $(GVM_SHA); \
+		echo ""; \
+		echo "gvm installed. Please restart your shell or run:"; \
+		echo "  source $$HOME/.gvm/scripts/gvm"; \
+		echo "Then re-run 'make deps' to install Go $(GO_VERSION) via gvm."; \
+		exit 0; \
+	fi
+	@if [ "$(HAS_GVM)" = "true" ]; then \
+		bash -c '. $$GVM_ROOT/scripts/gvm && gvm list' 2>/dev/null | grep -q "go$(GO_VERSION)" || { \
+			echo "Installing Go $(GO_VERSION) via gvm..."; \
+			bash -c '. $$GVM_ROOT/scripts/gvm && gvm install go$(GO_VERSION) -B'; \
+		}; \
+	else \
+		command -v go >/dev/null 2>&1 || { echo "Error: Go required. Install gvm from https://github.com/moovweb/gvm or Go from https://go.dev/dl/"; exit 1; }; \
+	fi
+	@$(call go-exec,command -v golangci-lint) >/dev/null 2>&1 || { echo "Installing golangci-lint $(GOLANGCI_VERSION)..."; \
+		$(call go-exec,go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v$(GOLANGCI_VERSION)); \
+	}
+	@$(call go-exec,command -v gqlgen) >/dev/null 2>&1 || { echo "Installing gqlgen $(GQLGEN_VERSION)..."; \
+		$(call go-exec,export GOFLAGS=$(GOFLAGS) && go install github.com/99designs/gqlgen@$(GQLGEN_VERSION)); \
 	}
 	@command -v yarn >/dev/null 2>&1 || { echo "Installing yarn..."; npm install -g yarn; }
 
@@ -72,9 +106,19 @@ deps-act:
 		curl -sSfL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin v$(ACT_VERSION); \
 	}
 
-#lint: @ Run Go linter
-lint:
-	@export GOFLAGS=$(GOFLAGS); go vet ./...
+#deps-hadolint: @ Install hadolint for Dockerfile linting
+deps-hadolint:
+	@command -v hadolint >/dev/null 2>&1 || { echo "Installing hadolint $(HADOLINT_VERSION)..."; \
+		curl -sSfL -o /tmp/hadolint https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-Linux-x86_64 && \
+		install -m 755 /tmp/hadolint /usr/local/bin/hadolint && \
+		rm -f /tmp/hadolint; \
+	}
+
+#lint: @ Run golangci-lint (includes gocritic) and hadolint
+lint: deps deps-hadolint
+	@$(call go-exec,golangci-lint run ./...)
+	@hadolint Dockerfile
+	@hadolint frontend/Dockerfile
 
 #ci: @ Run full local CI pipeline
 ci: deps generate lint test build
@@ -99,7 +143,7 @@ release:
 
 #update: @ Update dependencies to latest versions
 update: clean
-	@export GOFLAGS=$(GOFLAGS); go get -u; go mod tidy
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go get -u && go mod tidy)
 
 #version: @ Print current version(tag)
 version:
@@ -135,6 +179,6 @@ renovate-validate: renovate-bootstrap
 
 .PHONY: help clean generate test build run image-build \
 	build-frontend run-frontend image-frontend \
-	get deps deps-act lint ci ci-run release update version \
+	get deps deps-act deps-hadolint lint ci ci-run release update version \
 	redis-up redis-down kill-backend \
 	renovate-bootstrap renovate-validate

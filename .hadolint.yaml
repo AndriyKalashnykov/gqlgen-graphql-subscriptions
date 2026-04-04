@@ -1,0 +1,4 @@
+ignored:
+  - DL3008  # Pin versions in apt-get install
+  - DL3015  # Avoid additional packages with apt-get install
+  - DL3059  # Multiple consecutive RUN instructions (acceptable in multi-stage builds)

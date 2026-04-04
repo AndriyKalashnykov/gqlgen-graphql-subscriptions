@@ -65,7 +65,7 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make lint` | Run Go linter |
+| `make lint` | Run golangci-lint and hadolint |
 | `make test` | Run tests |
 
 ### CI

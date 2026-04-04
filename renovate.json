@@ -28,6 +28,60 @@
     "automerge": true,
     "minimumReleaseAge": "0 days"
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update pinned tool versions in Makefile",
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        "ACT_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
+      ],
+      "depNameTemplate": "nektos/act",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update golangci-lint version in Makefile",
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        "GOLANGCI_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
+      ],
+      "depNameTemplate": "golangci/golangci-lint",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update hadolint version in Makefile",
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        "HADOLINT_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
+      ],
+      "depNameTemplate": "hadolint/hadolint",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update nvm version in Makefile",
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        "NVM_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
+      ],
+      "depNameTemplate": "nvm-sh/nvm",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v(?<version>.+)$"
+    }
+  ],
   "packageRules": [
     {
       "description": "Wait 3 days before automerging major updates",
@@ -59,6 +113,13 @@
         "docker"
       ],
       "groupName": "Docker dependencies"
+    },
+    {
+      "description": "Group Makefile tool versions",
+      "matchFileNames": [
+        "Makefile"
+      ],
+      "groupName": "Makefile tool versions"
     }
   ]
 }
