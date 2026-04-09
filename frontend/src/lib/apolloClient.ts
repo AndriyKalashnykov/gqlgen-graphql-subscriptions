@@ -1,17 +1,16 @@
-import { split, HttpLink } from '@apollo/client';
+import { split, HttpLink, ApolloClient, InMemoryCache } from '@apollo/client';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { ApolloClient, InMemoryCache,  } from '@apollo/client';
-import { WebSocketLink } from '@apollo/client/link/ws';
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
+import { createClient } from 'graphql-ws';
 
-const wsLink = new WebSocketLink({
-  uri: `ws://localhost:8080/subscriptions`,
-  options: {
-    reconnect: true
-  }
-});
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: 'ws://localhost:8080/subscriptions',
+  }),
+);
 
 const httpLink = new HttpLink({
-  uri: 'http://localhost:8080/query'
+  uri: 'http://localhost:8080/query',
 });
 
 const link = split(
@@ -28,6 +27,5 @@ const link = split(
 
 export const client = new ApolloClient({
   link,
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
 });
-
