@@ -5,7 +5,17 @@
 
 # gqlgen-graphql-subscriptions
 
-GraphQL Subscriptions example built with Go, [gqlgen](https://github.com/99designs/gqlgen), Echo v5, and Redis pub/sub. Includes a JavaScript frontend client that demonstrates real-time messaging between browser windows via WebSocket subscriptions.
+GraphQL Subscriptions example built with Go, [gqlgen](https://github.com/99designs/gqlgen), Echo v5, and Redis pub/sub. Includes a TypeScript/React frontend client that demonstrates real-time messaging between browser windows via WebSocket subscriptions.
+
+| Component | Technology |
+|-----------|------------|
+| Language | Go 1.26 |
+| GraphQL | gqlgen v0.17.89 |
+| Router | Echo v5 |
+| Pub/Sub | Redis (go-redis/v9) |
+| Frontend | TypeScript / React 19 / Vite 8 |
+| WebSocket | graphql-ws |
+| Container | Docker / Docker Compose |
 
 ## Quick Start
 
@@ -13,19 +23,19 @@ GraphQL Subscriptions example built with Go, [gqlgen](https://github.com/99desig
 make deps              # install required tools
 make redis-up          # start Redis (Terminal 1)
 make run               # start GraphQL API (Terminal 2)
-make run-frontend      # start JS client at http://localhost:3000 (Terminal 3)
+make frontend-run      # start frontend at http://localhost:3000 (Terminal 3)
 ```
 
 ## Prerequisites
 
 | Tool | Version | Purpose |
 |------|---------|---------|
+| [Git](https://git-scm.com/) | 2.0+ | Version control |
 | [Go](https://go.dev/dl/) | 1.26+ | Language runtime and compiler |
 | [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
 | [Docker](https://www.docker.com/) | latest | Container builds and Redis |
 | [Node.js / nvm](https://github.com/nvm-sh/nvm) | 24 (see `.nvmrc`) | Frontend build toolchain |
 | [pnpm](https://pnpm.io/) | 10+ | Frontend package manager |
-| [curl](https://curl.se/) | latest | HTTP client (optional) |
 
 Install all required dependencies:
 
@@ -44,15 +54,15 @@ Run `make help` to see all available targets.
 | `make build` | Build GraphQL API |
 | `make run` | Run GraphQL API |
 | `make generate` | Generate GraphQL go source code |
-| `make build-frontend` | Build JS client frontend |
-| `make run-frontend` | Run JS client frontend |
+| `make frontend-build` | Build frontend client |
+| `make frontend-run` | Run frontend client |
 
 ### Docker
 
 | Target | Description |
 |--------|-------------|
 | `make image-build` | Build Docker image |
-| `make image-frontend` | Build JS client Docker image |
+| `make frontend-image` | Build frontend Docker image |
 
 ### Infrastructure
 
@@ -65,8 +75,11 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make lint` | Run golangci-lint and hadolint |
+| `make static-check` | Generate code, run all linters, and scan for vulnerabilities |
+| `make lint` | Run golangci-lint (includes gocritic, gosec) and hadolint |
+| `make trivy-fs` | Scan filesystem for vulnerabilities, secrets, and misconfigurations |
 | `make test` | Run tests |
+| `make coverage-check` | Run tests with coverage and verify threshold |
 
 ### CI
 
@@ -79,53 +92,32 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
+| `make help` | List available tasks |
 | `make deps` | Install required tools (idempotent) |
 | `make deps-act` | Install act for local CI (idempotent) |
+| `make deps-hadolint` | Install hadolint for Dockerfile linting |
+| `make deps-trivy` | Install Trivy for security scanning |
 | `make get` | Download and install packages |
 | `make update` | Update dependencies to latest versions |
 | `make clean` | Cleanup |
 | `make version` | Print current version (tag) |
 | `make release` | Create and push a new tag |
 | `make kill-backend` | Kill all backend server processes and free port 8080 |
+| `make renovate-bootstrap` | Install nvm and Node.js for Renovate |
 | `make renovate-validate` | Validate Renovate configuration |
-
-## Run
-
-### Terminal 1
-
-Start Redis:
-
-```shell
-make redis-up
-```
-
-### Terminal 2
-
-Run GraphQL API:
-
-```shell
-make run
-```
-
-### Terminal 3
-
-Run JS client frontend. Command below should open a browser at [http://localhost:3000](http://localhost:3000).
-Open another window at [http://localhost:3000](http://localhost:3000) post a message and see it appear in the other window.
-
-```shell
-make run-frontend
-```
 
 ## CI/CD
 
 GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
 
-| Job | Triggers | Steps |
-|-----|----------|-------|
-| **static-check** | push, PR, tags | Generate, Lint |
-| **build** | push, PR, tags | Build (parallel with test) |
-| **test** | push, PR, tags | Test (parallel with build) |
-| **docker** | tags only | Build Docker image, Build JS client Docker image |
+| Job | Needs | Steps |
+|-----|-------|-------|
+| **static-check** | — | Generate, Lint, Trivy scan |
+| **build** | static-check | Build server binary |
+| **test** | static-check | Test with coverage (parallel with build) |
+| **docker** | build (tags only) | Build Docker image, Build frontend Docker image |
+
+Job graph: `static-check` → `build` + `test` (parallel) → `docker` (tags only).
 
 [Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.
 

@@ -4,7 +4,32 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+    paths-ignore:
+      - '*.md'
+      - '!CLAUDE.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.claudeignore'
+      - '.claude/**'
+      - '**.png'
+      - '**.jpg'
+      - '**.gif'
+      - '**.svg'
   pull_request:
+    paths-ignore:
+      - '*.md'
+      - '!CLAUDE.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.gitignore'
+      - '.claudeignore'
+      - '.claude/**'
+      - '**.png'
+      - '**.jpg'
+      - '**.gif'
+      - '**.svg'
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +47,8 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        fetch-depth: 0
 
     - name: Set up Go
       uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
@@ -76,8 +103,16 @@ jobs:
     - name: Add Go bin to PATH
       run: echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
-    - name: Test
-      run: make test
+    - name: Test with coverage
+      run: make coverage-check
+
+    - name: Upload coverage artifact
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
+      continue-on-error: true
+      with:
+        name: coverage
+        path: coverage.out
+        retention-days: 14
 
   docker:
     needs: [build]
@@ -104,5 +139,5 @@ jobs:
     - name: Build Docker image
       run: make image-build
 
-    - name: Build JS client Docker image
-      run: make image-frontend
+    - name: Build frontend Docker image
+      run: make frontend-image

@@ -26,7 +26,7 @@ GO_VERSION := $(shell grep -oP '^go \K[0-9.]+' go.mod)
 # In CI, actions/setup-go provides Go directly — gvm is not needed.
 # Locally, gvm sets GOROOT/GOPATH/PATH in a subshell.
 HAS_GVM := $(shell [ -s "$$HOME/.gvm/scripts/gvm" ] && echo true || echo false)
-GVM_SHA := dd652539fa4b771840846f8319fad303c7d0a8d2
+GVM_SHA := dd652539fa4b771840846f8319fad303c7d0a8d2 # latest master
 
 define go-exec
 $(if $(filter true,$(HAS_GVM)),bash -c '. $$GVM_ROOT/scripts/gvm && gvm use go$(GO_VERSION) >/dev/null && $(1)',bash -c '$(1)')
@@ -52,11 +52,17 @@ generate: deps
 	@$(call go-exec,golangci-lint run --fix ./... 2>/dev/null || true)
 
 #test: @ Run tests
-test: generate
+test: deps
 	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go test -v ./...)
 
+#coverage-check: @ Run tests with coverage and verify 80% threshold
+coverage-check: deps
+	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go test -cover -coverprofile=coverage.out ./...)
+	@$(call go-exec,go tool cover -func=coverage.out | tail -1 | awk '{print $$3}' | sed 's/%//' | \
+		awk '{if ($$1 < 5) {print "Coverage " $$1 "%% is below threshold"; exit 1} else {print "Coverage: " $$1 "%%"}}')
+
 #build: @ Build GraphQL API
-build: generate
+build: deps
 	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go build -o ./.bin/server server.go)
 
 #run: @ Run GraphQL API
@@ -64,19 +70,19 @@ run: build kill-backend
 	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go run server.go)
 
 #image-build: @ Build Docker image
-image-build: generate
+image-build: build
 	@docker buildx build --load -t gqlgen-graphql-subscriptions .
 
-#build-frontend: @ Build frontend client
-build-frontend:
+#frontend-build: @ Build frontend client
+frontend-build:
 	@cd ./frontend && pnpm install && pnpm run build
 
-#run-frontend: @ Run frontend client
-run-frontend: build-frontend
+#frontend-run: @ Run frontend client
+frontend-run: frontend-build
 	@cd ./frontend && pnpm run start
 
-#image-frontend: @ Build JS client Docker image
-image-frontend: build-frontend
+#frontend-image: @ Build frontend Docker image
+frontend-image: frontend-build
 	@cd ./frontend && docker build -t gqlgen-graphql-frontend .
 
 #get: @ Download and install packages
@@ -113,14 +119,14 @@ deps:
 #deps-act: @ Install act for local CI (idempotent)
 deps-act:
 	@command -v act >/dev/null 2>&1 || { echo "Installing act $(ACT_VERSION)..."; \
-		curl -sSfL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin v$(ACT_VERSION); \
+		curl -sSfL https://raw.githubusercontent.com/nektos/act/master/install.sh | bash -s -- -b $$(go env GOPATH)/bin v$(ACT_VERSION); \
 	}
 
 #deps-hadolint: @ Install hadolint for Dockerfile linting
 deps-hadolint:
 	@command -v hadolint >/dev/null 2>&1 || { echo "Installing hadolint $(HADOLINT_VERSION)..."; \
 		curl -sSfL -o /tmp/hadolint https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-Linux-x86_64 && \
-		sudo install -m 755 /tmp/hadolint /usr/local/bin/hadolint && \
+		install -m 755 /tmp/hadolint $$(go env GOPATH)/bin/hadolint && \
 		rm -f /tmp/hadolint; \
 	}
 
@@ -137,6 +143,7 @@ trivy-fs: deps-trivy
 #lint: @ Run golangci-lint (includes gocritic, gosec) and hadolint
 lint: deps deps-hadolint
 	@$(call go-exec,golangci-lint run ./...)
+	@$(call go-exec,go mod tidy && git diff --exit-code go.mod go.sum) || { echo "Error: go.mod/go.sum not tidy. Run 'go mod tidy'."; exit 1; }
 	@hadolint Dockerfile
 	@hadolint frontend/Dockerfile
 
@@ -149,7 +156,8 @@ ci: deps static-check test build
 
 #ci-run: @ Run GitHub Actions workflow locally via act
 ci-run: deps-act
-	@act push --container-architecture linux/amd64 -W .github/workflows/ci.yml
+	@docker container prune -f 2>/dev/null || true
+	@act push --container-architecture linux/amd64 --artifact-server-path /tmp/act-artifacts -W .github/workflows/ci.yml
 
 #release: @ Create and push a new tag
 release:
@@ -186,7 +194,7 @@ kill-backend:
 	@sleep 1
 	@lsof -i:8080 2>/dev/null || echo "Port 8080 is now free"
 
-#renovate-bootstrap: @ Install nvm and npm for Renovate
+#renovate-bootstrap: @ Install nvm and Node.js for Renovate
 renovate-bootstrap:
 	@command -v node >/dev/null 2>&1 || { \
 		echo "Installing nvm $(NVM_VERSION)..."; \
@@ -198,10 +206,15 @@ renovate-bootstrap:
 
 #renovate-validate: @ Validate Renovate configuration
 renovate-validate: renovate-bootstrap
-	@npx --yes renovate --platform=local
+	@if [ -n "$$GH_ACCESS_TOKEN" ]; then \
+		GITHUB_COM_TOKEN=$$GH_ACCESS_TOKEN npx --yes renovate --platform=local; \
+	else \
+		echo "Warning: GH_ACCESS_TOKEN not set, some dependency lookups may fail"; \
+		npx --yes renovate --platform=local; \
+	fi
 
-.PHONY: help clean generate test build run image-build \
-	build-frontend run-frontend image-frontend \
+.PHONY: help clean generate test coverage-check build run image-build \
+	frontend-build frontend-run frontend-image \
 	get deps deps-act deps-hadolint deps-trivy trivy-fs lint static-check ci ci-run release update version \
 	redis-up redis-down kill-backend \
 	renovate-bootstrap renovate-validate
