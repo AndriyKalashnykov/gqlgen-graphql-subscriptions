@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"errors"
 	"testing"
 )
 
@@ -37,7 +36,7 @@ func TestNewRedisClient_Success(t *testing.T) {
 	ctx := context.Background()
 	client, err := NewRedisClient(ctx, "localhost:6379")
 
-	if !errors.Is(err, nil) {
+	if err != nil {
 		t.Skipf("Redis not available: %v", err)
 	}
 
@@ -53,7 +52,7 @@ func TestNewRedisClient_Success(t *testing.T) {
 
 	// Verify connection
 	err = client.Ping(ctx).Err()
-	if !errors.Is(err, nil) {
+	if err != nil {
 		t.Errorf("failed to ping Redis: %v", err)
 	}
 }

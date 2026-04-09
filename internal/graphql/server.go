@@ -2,6 +2,8 @@ package graphql
 
 import (
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/vektah/gqlparser/v2/ast"
 
@@ -18,11 +20,22 @@ import (
 )
 
 func NewGraphQLServer(resolver *graph.Resolver) *handler.Server {
+	allowedOrigins := getAllowedOrigins()
+
 	srv := handler.New(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 	srv.AddTransport(&transport.Websocket{
 		Upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
-				return true
+				if len(allowedOrigins) == 0 {
+					return true
+				}
+				origin := r.Header.Get("Origin")
+				for _, allowed := range allowedOrigins {
+					if allowed == "*" || allowed == origin {
+						return true
+					}
+				}
+				return false
 			},
 			ReadBufferSize:  constants.WebSocketReadBufferSize,
 			WriteBufferSize: constants.WebSocketWriteBufferSize,
@@ -37,10 +50,22 @@ func NewGraphQLServer(resolver *graph.Resolver) *handler.Server {
 
 	srv.SetQueryCache(lru.New[*ast.QueryDocument](constants.QueryCacheSize))
 
-	srv.Use(extension.Introspection{})
+	if os.Getenv("DISABLE_INTROSPECTION") != "true" {
+		srv.Use(extension.Introspection{})
+	}
 	srv.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](constants.APQCacheSize),
 	})
 
 	return srv
+}
+
+// getAllowedOrigins reads CORS origins from ALLOWED_ORIGINS env var.
+// Returns empty slice if unset (allows all origins for local development).
+func getAllowedOrigins() []string {
+	origins := os.Getenv("ALLOWED_ORIGINS")
+	if origins == "" {
+		return nil
+	}
+	return strings.Split(origins, ",")
 }

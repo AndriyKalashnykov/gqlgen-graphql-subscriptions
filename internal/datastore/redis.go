@@ -2,7 +2,6 @@ package datastore
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
@@ -20,7 +19,7 @@ func NewRedisClient(ctx context.Context, url string) (RedisClient, error) {
 	})
 
 	_, err := client.Ping(ctx).Result()
-	if !errors.Is(err, nil) {
+	if err != nil {
 		return nil, fmt.Errorf("failed to connect to Redis: %w", err)
 	}
 

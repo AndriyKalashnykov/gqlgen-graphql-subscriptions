@@ -4,11 +4,11 @@ type Message {
 }
 
 type Query {
-  messages: [Message]
+  messages: [Message!]!
 }
 
 type Mutation {
-  createMessage(message: String!): Message
+  createMessage(message: String!): Message!
 }
 
 type Subscription {

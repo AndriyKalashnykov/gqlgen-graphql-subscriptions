@@ -38,6 +38,7 @@ func (r *subscriptionResolver) MessageCreated(ctx context.Context) (<-chan *mode
 		<-ctx.Done()
 		r.mutex.Lock()
 		delete(r.messageChannels, token)
+		close(mc)
 		r.mutex.Unlock()
 		log.Printf("Subscription cleanup: deleted channel for token %s", token)
 	}()

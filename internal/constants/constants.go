@@ -5,11 +5,8 @@ import "time"
 const (
 	// Redis Stream configuration
 	RedisStreamRoom   = "room"
-	RedisStreamMaxLen = 1
-	RedisStreamCount  = 1
-
-	// Server configuration
-	ServerPort = ":8080"
+	RedisStreamMaxLen = 100
+	RedisStreamCount  = 100
 
 	// WebSocket configuration
 	WebSocketReadBufferSize    = 1024
@@ -23,4 +20,7 @@ const (
 
 	// Redis Stream message field
 	RedisMessageField = "message"
+
+	// Message validation
+	MaxMessageLength = 4096
 )

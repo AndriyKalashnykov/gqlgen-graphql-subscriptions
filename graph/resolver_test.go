@@ -8,37 +8,11 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/testutil"
 )
 
-type mockRedisClient struct {
-	xAddFunc  func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd
-	xReadFunc func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd
-}
-
-func (m *mockRedisClient) XAdd(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
-	if m.xAddFunc != nil {
-		return m.xAddFunc(ctx, args)
-	}
-	return redis.NewStringCmd(ctx)
-}
-
-func (m *mockRedisClient) XRead(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
-	if m.xReadFunc != nil {
-		return m.xReadFunc(ctx, args)
-	}
-	return redis.NewXStreamSliceCmd(ctx)
-}
-
-func (m *mockRedisClient) Ping(ctx context.Context) *redis.StatusCmd {
-	return redis.NewStatusCmd(ctx)
-}
-
-func (m *mockRedisClient) Close() error {
-	return nil
-}
-
 func TestNewResolver(t *testing.T) {
-	mock := &mockRedisClient{}
+	mock := &testutil.MockRedisClient{}
 	resolver := NewResolver(mock)
 
 	if resolver == nil {
@@ -60,10 +34,10 @@ func TestNewResolver(t *testing.T) {
 
 func TestMutationResolver_CreateMessage(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{
-		xAddFunc: func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
+	mock := &testutil.MockRedisClient{
+		XAddFunc: func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
 			cmd := redis.NewStringCmd(ctx)
-			cmd.SetVal("OK")
+			cmd.SetVal("9999-0")
 			return cmd
 		},
 	}
@@ -84,11 +58,15 @@ func TestMutationResolver_CreateMessage(t *testing.T) {
 	if msg.Message != "test message" {
 		t.Errorf("expected message 'test message', got %s", msg.Message)
 	}
+
+	if msg.ID != "9999-0" {
+		t.Errorf("expected ID '9999-0', got %s", msg.ID)
+	}
 }
 
 func TestMutationResolver_CreateMessage_Error(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{}
+	mock := &testutil.MockRedisClient{}
 
 	resolver := NewResolver(mock)
 	mr := &mutationResolver{resolver}
@@ -102,8 +80,8 @@ func TestMutationResolver_CreateMessage_Error(t *testing.T) {
 
 func TestQueryResolver_Messages(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{
-		xReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
 			cmd := redis.NewXStreamSliceCmd(ctx)
 			cmd.SetVal([]redis.XStream{
 				{
@@ -142,7 +120,7 @@ func TestSubscriptionResolver_MessageCreated(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mock := &mockRedisClient{}
+	mock := &testutil.MockRedisClient{}
 	resolver := NewResolver(mock)
 	sr := &subscriptionResolver{resolver}
 
@@ -182,7 +160,7 @@ func TestSubscriptionResolver_MessageDelivery(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	mock := &mockRedisClient{}
+	mock := &testutil.MockRedisClient{}
 	resolver := NewResolver(mock)
 	sr := &subscriptionResolver{resolver}
 

@@ -29,37 +29,37 @@ func (s *MessageService) PublishMessage(ctx context.Context, message string) (*m
 	if message == "" {
 		return nil, fmt.Errorf("message cannot be empty")
 	}
-
-	m := &model.Message{
-		Message: message,
+	if len(message) > constants.MaxMessageLength {
+		return nil, fmt.Errorf("message exceeds maximum length of %d", constants.MaxMessageLength)
 	}
 
-	err := s.redis.XAdd(ctx, &redis.XAddArgs{
+	id, err := s.redis.XAdd(ctx, &redis.XAddArgs{
 		Stream: constants.RedisStreamRoom,
 		ID:     "*",
 		MaxLen: constants.RedisStreamMaxLen,
 		Values: map[string]interface{}{
-			constants.RedisMessageField: m.Message,
+			constants.RedisMessageField: message,
 		},
-	}).Err()
+	}).Result()
 
-	if !errors.Is(err, nil) {
+	if err != nil {
 		return nil, fmt.Errorf("failed to publish message: %w", err)
 	}
 
-	return m, nil
+	return &model.Message{
+		ID:      id,
+		Message: message,
+	}, nil
 }
 
 // ReadMessages reads messages from Redis stream
 func (s *MessageService) ReadMessages(ctx context.Context) ([]*model.Message, error) {
 	streams, err := s.redis.XRead(ctx, &redis.XReadArgs{
-		Streams: []string{constants.RedisStreamRoom, "0"}, // Read from beginning, not "$" (new messages only)
-		Count:   100,                                      // Limit to prevent loading too many messages
-		Block:   -1,                                       // Don't block, return immediately
+		Streams: []string{constants.RedisStreamRoom, "0"},
+		Count:   constants.RedisStreamCount,
 	}).Result()
 
-	if !errors.Is(err, nil) {
-		// If no messages exist yet, return empty array
+	if err != nil {
 		if errors.Is(err, redis.Nil) {
 			return []*model.Message{}, nil
 		}
@@ -108,7 +108,7 @@ func (s *MessageService) StreamMessages(ctx context.Context) (<-chan *model.Mess
 					Block:   0,
 				}).Result()
 
-				if !errors.Is(err, nil) {
+				if err != nil {
 					if errors.Is(err, context.Canceled) {
 						return
 					}

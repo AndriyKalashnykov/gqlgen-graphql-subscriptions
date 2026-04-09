@@ -8,37 +8,11 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/testutil"
 )
 
-type mockRedisClient struct {
-	xAddFunc  func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd
-	xReadFunc func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd
-}
-
-func (m *mockRedisClient) XAdd(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
-	if m.xAddFunc != nil {
-		return m.xAddFunc(ctx, args)
-	}
-	return redis.NewStringCmd(ctx)
-}
-
-func (m *mockRedisClient) XRead(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
-	if m.xReadFunc != nil {
-		return m.xReadFunc(ctx, args)
-	}
-	return redis.NewXStreamSliceCmd(ctx)
-}
-
-func (m *mockRedisClient) Ping(ctx context.Context) *redis.StatusCmd {
-	return redis.NewStatusCmd(ctx)
-}
-
-func (m *mockRedisClient) Close() error {
-	return nil
-}
-
 func TestNewMessageService(t *testing.T) {
-	mock := &mockRedisClient{}
+	mock := &testutil.MockRedisClient{}
 	svc := NewMessageService(mock)
 
 	if svc == nil {
@@ -52,8 +26,8 @@ func TestNewMessageService(t *testing.T) {
 
 func TestPublishMessage_Success(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{
-		xAddFunc: func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
+	mock := &testutil.MockRedisClient{
+		XAddFunc: func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
 			if args.Stream != constants.RedisStreamRoom {
 				t.Errorf("expected stream %s, got %s", constants.RedisStreamRoom, args.Stream)
 			}
@@ -61,7 +35,7 @@ func TestPublishMessage_Success(t *testing.T) {
 				t.Errorf("expected maxlen %d, got %d", constants.RedisStreamMaxLen, args.MaxLen)
 			}
 			cmd := redis.NewStringCmd(ctx)
-			cmd.SetVal("OK")
+			cmd.SetVal("1234567890-0")
 			return cmd
 		},
 	}
@@ -69,7 +43,7 @@ func TestPublishMessage_Success(t *testing.T) {
 	svc := NewMessageService(mock)
 	msg, err := svc.PublishMessage(ctx, "hello")
 
-	if !errors.Is(err, nil) {
+	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -80,11 +54,15 @@ func TestPublishMessage_Success(t *testing.T) {
 	if msg.Message != "hello" {
 		t.Errorf("expected message 'hello', got %s", msg.Message)
 	}
+
+	if msg.ID != "1234567890-0" {
+		t.Errorf("expected ID '1234567890-0', got %s", msg.ID)
+	}
 }
 
 func TestPublishMessage_EmptyMessage(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{}
+	mock := &testutil.MockRedisClient{}
 	svc := NewMessageService(mock)
 
 	_, err := svc.PublishMessage(ctx, "")
@@ -94,11 +72,28 @@ func TestPublishMessage_EmptyMessage(t *testing.T) {
 	}
 }
 
+func TestPublishMessage_TooLong(t *testing.T) {
+	ctx := context.Background()
+	mock := &testutil.MockRedisClient{}
+	svc := NewMessageService(mock)
+
+	longMsg := make([]byte, constants.MaxMessageLength+1)
+	for i := range longMsg {
+		longMsg[i] = 'a'
+	}
+
+	_, err := svc.PublishMessage(ctx, string(longMsg))
+
+	if err == nil {
+		t.Fatal("expected error for message exceeding max length, got nil")
+	}
+}
+
 func TestPublishMessage_RedisError(t *testing.T) {
 	ctx := context.Background()
 	redisErr := errors.New("redis connection error")
-	mock := &mockRedisClient{
-		xAddFunc: func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
+	mock := &testutil.MockRedisClient{
+		XAddFunc: func(ctx context.Context, args *redis.XAddArgs) *redis.StringCmd {
 			cmd := redis.NewStringCmd(ctx)
 			cmd.SetErr(redisErr)
 			return cmd
@@ -119,8 +114,8 @@ func TestPublishMessage_RedisError(t *testing.T) {
 
 func TestReadMessages_Success(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{
-		xReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
 			cmd := redis.NewXStreamSliceCmd(ctx)
 			cmd.SetVal([]redis.XStream{
 				{
@@ -144,7 +139,7 @@ func TestReadMessages_Success(t *testing.T) {
 	svc := NewMessageService(mock)
 	messages, err := svc.ReadMessages(ctx)
 
-	if !errors.Is(err, nil) {
+	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -163,8 +158,8 @@ func TestReadMessages_Success(t *testing.T) {
 
 func TestReadMessages_EmptyStream(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{
-		xReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
 			cmd := redis.NewXStreamSliceCmd(ctx)
 			cmd.SetVal([]redis.XStream{})
 			return cmd
@@ -174,7 +169,7 @@ func TestReadMessages_EmptyStream(t *testing.T) {
 	svc := NewMessageService(mock)
 	messages, err := svc.ReadMessages(ctx)
 
-	if !errors.Is(err, nil) {
+	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -183,10 +178,32 @@ func TestReadMessages_EmptyStream(t *testing.T) {
 	}
 }
 
+func TestReadMessages_RedisNil(t *testing.T) {
+	ctx := context.Background()
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+			cmd := redis.NewXStreamSliceCmd(ctx)
+			cmd.SetErr(redis.Nil)
+			return cmd
+		},
+	}
+
+	svc := NewMessageService(mock)
+	messages, err := svc.ReadMessages(ctx)
+
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(messages) != 0 {
+		t.Errorf("expected empty messages for redis.Nil, got %d", len(messages))
+	}
+}
+
 func TestReadMessages_InvalidFormat(t *testing.T) {
 	ctx := context.Background()
-	mock := &mockRedisClient{
-		xReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
 			cmd := redis.NewXStreamSliceCmd(ctx)
 			cmd.SetVal([]redis.XStream{
 				{
@@ -194,7 +211,7 @@ func TestReadMessages_InvalidFormat(t *testing.T) {
 					Messages: []redis.XMessage{
 						{
 							ID:     "1-0",
-							Values: map[string]interface{}{constants.RedisMessageField: 12345}, // Invalid type
+							Values: map[string]interface{}{constants.RedisMessageField: 12345},
 						},
 					},
 				},
