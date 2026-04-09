@@ -9,7 +9,7 @@
     "@chakra-ui/styled-system": "^2.9.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@types/node": "^24.3.1",
+    "@types/node": "^25.5.2",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "framer-motion": "^12.23.12",
