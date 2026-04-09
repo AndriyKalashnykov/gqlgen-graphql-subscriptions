@@ -9,6 +9,7 @@ GQLGEN_VERSION := v0.17.89
 HADOLINT_VERSION := 2.14.0
 ACT_VERSION := 0.2.87
 NVM_VERSION := 0.40.4
+NODE_VERSION := 24
 
 # Parse Go version from go.mod
 GO_VERSION := $(shell grep -oP '^go \K[0-9.]+' go.mod)
@@ -120,8 +121,11 @@ lint: deps deps-hadolint
 	@hadolint Dockerfile
 	@hadolint frontend/Dockerfile
 
+#static-check: @ Generate code and run all linters
+static-check: generate lint
+
 #ci: @ Run full local CI pipeline
-ci: deps generate lint test build
+ci: deps static-check test build
 	@echo "Local CI pipeline passed."
 
 #ci-run: @ Run GitHub Actions workflow locally via act
@@ -170,7 +174,7 @@ renovate-bootstrap:
 		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$(NVM_VERSION)/install.sh | bash; \
 		export NVM_DIR="$$HOME/.nvm"; \
 		[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh"; \
-		nvm install --lts; \
+		nvm install $(NODE_VERSION); \
 	}
 
 #renovate-validate: @ Validate Renovate configuration
@@ -179,6 +183,6 @@ renovate-validate: renovate-bootstrap
 
 .PHONY: help clean generate test build run image-build \
 	build-frontend run-frontend image-frontend \
-	get deps deps-act deps-hadolint lint ci ci-run release update version \
+	get deps deps-act deps-hadolint lint static-check ci ci-run release update version \
 	redis-up redis-down kill-backend \
 	renovate-bootstrap renovate-validate

@@ -23,7 +23,7 @@ make run-frontend      # start JS client at http://localhost:3000 (Terminal 3)
 | [Go](https://go.dev/dl/) | 1.26+ | Language runtime and compiler |
 | [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
 | [Docker](https://www.docker.com/) | latest | Container builds and Redis |
-| [Node.js / nvm](https://github.com/nvm-sh/nvm) | LTS | Frontend build toolchain |
+| [Node.js / nvm](https://github.com/nvm-sh/nvm) | 24 (see `.nvmrc`) | Frontend build toolchain |
 | [Yarn](https://yarnpkg.com/) | 1.x | Frontend package manager |
 | [curl](https://curl.se/) | latest | HTTP client (optional) |
 
@@ -122,7 +122,9 @@ GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
 
 | Job | Triggers | Steps |
 |-----|----------|-------|
-| **ci** | push, PR, tags | Generate, Lint, Test, Build |
+| **static-check** | push, PR, tags | Generate, Lint |
+| **build** | push, PR, tags | Build (parallel with test) |
+| **test** | push, PR, tags | Test (parallel with build) |
 | **docker** | tags only | Build Docker image, Build JS client Docker image |
 
 [Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.
