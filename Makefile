@@ -9,7 +9,8 @@ GQLGEN_VERSION := v0.17.89
 HADOLINT_VERSION := 2.14.0
 ACT_VERSION := 0.2.87
 NVM_VERSION := 0.40.4
-NODE_VERSION := 24
+# Parse Node version from .nvmrc (fallback to 24 if missing)
+NODE_VERSION := $(shell cat .nvmrc 2>/dev/null || echo 24)
 
 # Parse Go version from go.mod
 GO_VERSION := $(shell grep -oP '^go \K[0-9.]+' go.mod)
