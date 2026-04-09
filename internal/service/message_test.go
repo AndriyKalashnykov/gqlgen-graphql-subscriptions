@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 
@@ -197,6 +198,164 @@ func TestReadMessages_RedisNil(t *testing.T) {
 
 	if len(messages) != 0 {
 		t.Errorf("expected empty messages for redis.Nil, got %d", len(messages))
+	}
+}
+
+func TestReadMessages_RedisError(t *testing.T) {
+	ctx := context.Background()
+	redisErr := errors.New("connection reset")
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+			cmd := redis.NewXStreamSliceCmd(ctx)
+			cmd.SetErr(redisErr)
+			return cmd
+		},
+	}
+
+	svc := NewMessageService(mock)
+	_, err := svc.ReadMessages(ctx)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+
+	if !errors.Is(err, redisErr) {
+		t.Errorf("expected error to wrap redis error")
+	}
+}
+
+func TestStreamMessages_ReceivesMessage(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	callCount := 0
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+			callCount++
+			cmd := redis.NewXStreamSliceCmd(ctx)
+			if callCount == 1 {
+				cmd.SetVal([]redis.XStream{
+					{
+						Stream: constants.RedisStreamRoom,
+						Messages: []redis.XMessage{
+							{
+								ID:     "100-0",
+								Values: map[string]interface{}{constants.RedisMessageField: "streamed-msg"},
+							},
+						},
+					},
+				})
+			} else {
+				// Cancel after first message to stop the loop
+				cancel()
+				cmd.SetErr(context.Canceled)
+			}
+			return cmd
+		},
+	}
+
+	svc := NewMessageService(mock)
+	msgChan, errChan := svc.StreamMessages(ctx)
+
+	select {
+	case msg := <-msgChan:
+		if msg.ID != "100-0" {
+			t.Errorf("expected ID '100-0', got %s", msg.ID)
+		}
+		if msg.Message != "streamed-msg" {
+			t.Errorf("expected message 'streamed-msg', got %s", msg.Message)
+		}
+	case err := <-errChan:
+		t.Fatalf("unexpected error: %v", err)
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for streamed message")
+	}
+}
+
+func TestStreamMessages_ContextCancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+			cmd := redis.NewXStreamSliceCmd(ctx)
+			cmd.SetErr(context.Canceled)
+			return cmd
+		},
+	}
+
+	svc := NewMessageService(mock)
+	msgChan, _ := svc.StreamMessages(ctx)
+
+	cancel()
+
+	// Channel should close without sending messages
+	select {
+	case _, ok := <-msgChan:
+		if ok {
+			t.Error("expected channel to be closed")
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for channel close")
+	}
+}
+
+func TestStreamMessages_RedisError(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+			cmd := redis.NewXStreamSliceCmd(ctx)
+			cmd.SetErr(errors.New("redis down"))
+			return cmd
+		},
+	}
+
+	svc := NewMessageService(mock)
+	_, errChan := svc.StreamMessages(ctx)
+
+	select {
+	case err := <-errChan:
+		if err == nil {
+			t.Fatal("expected error, got nil")
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for error")
+	}
+}
+
+func TestStreamMessages_InvalidFormat(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	mock := &testutil.MockRedisClient{
+		XReadFunc: func(ctx context.Context, args *redis.XReadArgs) *redis.XStreamSliceCmd {
+			cmd := redis.NewXStreamSliceCmd(ctx)
+			cmd.SetVal([]redis.XStream{
+				{
+					Stream: constants.RedisStreamRoom,
+					Messages: []redis.XMessage{
+						{
+							ID:     "1-0",
+							Values: map[string]interface{}{constants.RedisMessageField: 12345},
+						},
+					},
+				},
+			})
+			return cmd
+		},
+	}
+
+	svc := NewMessageService(mock)
+	_, errChan := svc.StreamMessages(ctx)
+
+	select {
+	case err := <-errChan:
+		if err == nil {
+			t.Fatal("expected error for invalid format, got nil")
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for error")
 	}
 }
 

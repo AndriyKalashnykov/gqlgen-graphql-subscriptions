@@ -156,6 +156,36 @@ func TestSubscriptionResolver_MessageCreated(t *testing.T) {
 	}
 }
 
+func TestResolver_Mutation(t *testing.T) {
+	mock := &testutil.MockRedisClient{}
+	resolver := NewResolver(mock)
+
+	mr := resolver.Mutation()
+	if mr == nil {
+		t.Fatal("expected MutationResolver, got nil")
+	}
+}
+
+func TestResolver_Query(t *testing.T) {
+	mock := &testutil.MockRedisClient{}
+	resolver := NewResolver(mock)
+
+	qr := resolver.Query()
+	if qr == nil {
+		t.Fatal("expected QueryResolver, got nil")
+	}
+}
+
+func TestResolver_Subscription(t *testing.T) {
+	mock := &testutil.MockRedisClient{}
+	resolver := NewResolver(mock)
+
+	sr := resolver.Subscription()
+	if sr == nil {
+		t.Fatal("expected SubscriptionResolver, got nil")
+	}
+}
+
 func TestSubscriptionResolver_MessageDelivery(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
