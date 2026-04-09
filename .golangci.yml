@@ -1,9 +1,23 @@
 version: "2"
 
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions
+
 linters:
   default: standard
   enable:
+    - bodyclose
+    - errorlint
+    - goconst
     - gocritic
+    - gosec
+    - misspell
+    - noctx
 
 linters-settings:
   gocritic:
@@ -13,6 +27,9 @@ linters-settings:
       - opinionated
       - performance
       - style
+  gosec:
+    excludes:
+      - G104  # unhandled errors — already covered by errcheck
 
 issues:
   exclude-dirs:

@@ -3,10 +3,11 @@ package graphql
 import (
 	"net/http"
 
+	"github.com/vektah/gqlparser/v2/ast"
+
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
-	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/lru"

@@ -47,6 +47,7 @@ generate: deps
 	@rm -rf graph/model
 	@rm -rf graph/generated
 	@$(call go-exec,export GOFLAGS=$(GOFLAGS) && go run github.com/99designs/gqlgen generate)
+	@$(call go-exec,golangci-lint run --fix ./... 2>/dev/null || true)
 
 #test: @ Run tests
 test: generate

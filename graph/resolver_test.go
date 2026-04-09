@@ -5,8 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 )
 
 type mockRedisClient struct {

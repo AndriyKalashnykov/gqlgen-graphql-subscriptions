@@ -5,8 +5,9 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
 	"github.com/redis/go-redis/v9"
+
+	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
 )
 
 type mockRedisClient struct {

@@ -5,10 +5,11 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/redis/go-redis/v9"
+
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/datastore"
-	"github.com/redis/go-redis/v9"
 )
 
 // MessageService handles message publishing and retrieval via Redis
@@ -53,13 +54,13 @@ func (s *MessageService) PublishMessage(ctx context.Context, message string) (*m
 func (s *MessageService) ReadMessages(ctx context.Context) ([]*model.Message, error) {
 	streams, err := s.redis.XRead(ctx, &redis.XReadArgs{
 		Streams: []string{constants.RedisStreamRoom, "0"}, // Read from beginning, not "$" (new messages only)
-		Count:   100,                                       // Limit to prevent loading too many messages
-		Block:   -1,                                        // Don't block, return immediately
+		Count:   100,                                      // Limit to prevent loading too many messages
+		Block:   -1,                                       // Don't block, return immediately
 	}).Result()
 
 	if !errors.Is(err, nil) {
 		// If no messages exist yet, return empty array
-		if err == redis.Nil {
+		if errors.Is(err, redis.Nil) {
 			return []*model.Message{}, nil
 		}
 		return nil, fmt.Errorf("failed to read messages: %w", err)

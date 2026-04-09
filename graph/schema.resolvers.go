@@ -9,10 +9,11 @@ import (
 	"context"
 	"log"
 
+	"github.com/thanhpk/randstr"
+
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/generated"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/graph/model"
 	"github.com/AndriyKalashnykov/gqlgen-graphql-subscriptions/internal/constants"
-	"github.com/thanhpk/randstr"
 )
 
 // CreateMessage is the resolver for the createMessage field.
