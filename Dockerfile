@@ -19,4 +19,5 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o server server.go
 
 FROM scratch
 COPY --from=builder /source/server /server
+USER 65534:65534
 CMD ["/server"]

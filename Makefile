@@ -14,6 +14,8 @@ HADOLINT_VERSION := 2.14.0
 ACT_VERSION := 0.2.87
 # renovate: datasource=github-releases depName=nvm-sh/nvm
 NVM_VERSION := 0.40.4
+# renovate: datasource=github-releases depName=aquasecurity/trivy
+TRIVY_VERSION := 0.69.3
 # Parse Node version from .nvmrc (fallback to 24 if missing)
 NODE_VERSION := $(shell cat .nvmrc 2>/dev/null || echo 24)
 
@@ -122,14 +124,24 @@ deps-hadolint:
 		rm -f /tmp/hadolint; \
 	}
 
-#lint: @ Run golangci-lint (includes gocritic) and hadolint
+#deps-trivy: @ Install Trivy for security scanning
+deps-trivy:
+	@command -v trivy >/dev/null 2>&1 || { echo "Installing trivy $(TRIVY_VERSION)..."; \
+		curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b $$(go env GOPATH)/bin v$(TRIVY_VERSION); \
+	}
+
+#trivy-fs: @ Scan filesystem for vulnerabilities, secrets, and misconfigurations
+trivy-fs: deps-trivy
+	@trivy fs --scanners vuln,secret,misconfig --severity CRITICAL,HIGH .
+
+#lint: @ Run golangci-lint (includes gocritic, gosec) and hadolint
 lint: deps deps-hadolint
 	@$(call go-exec,golangci-lint run ./...)
 	@hadolint Dockerfile
 	@hadolint frontend/Dockerfile
 
-#static-check: @ Generate code and run all linters
-static-check: generate lint
+#static-check: @ Generate code, run all linters, and scan for vulnerabilities
+static-check: generate lint trivy-fs
 
 #ci: @ Run full local CI pipeline
 ci: deps static-check test build
@@ -190,6 +202,6 @@ renovate-validate: renovate-bootstrap
 
 .PHONY: help clean generate test build run image-build \
 	build-frontend run-frontend image-frontend \
-	get deps deps-act deps-hadolint lint static-check ci ci-run release update version \
+	get deps deps-act deps-hadolint deps-trivy trivy-fs lint static-check ci ci-run release update version \
 	redis-up redis-down kill-backend \
 	renovate-bootstrap renovate-validate
