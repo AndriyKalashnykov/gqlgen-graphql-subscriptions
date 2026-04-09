@@ -6,6 +6,7 @@
     ":semanticCommitScope(all)",
     ":separatePatchReleases"
   ],
+  "enabledManagers": ["gomod", "github-actions", "dockerfile", "npm", "custom.regex"],
   "postUpdateOptions": [
     "gomodTidy"
   ],
@@ -31,74 +32,16 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Update pinned tool versions in Makefile",
-      "fileMatch": [
-        "(^|/)Makefile$"
-      ],
+      "description": "Update Makefile tool versions via inline renovate comments",
+      "managerFilePatterns": ["/^Makefile$/"],
       "matchStrings": [
-        "ACT_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
-      ],
-      "depNameTemplate": "nektos/act",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update golangci-lint version in Makefile",
-      "fileMatch": [
-        "(^|/)Makefile$"
-      ],
-      "matchStrings": [
-        "GOLANGCI_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
-      ],
-      "depNameTemplate": "golangci/golangci-lint",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update hadolint version in Makefile",
-      "fileMatch": [
-        "(^|/)Makefile$"
-      ],
-      "matchStrings": [
-        "HADOLINT_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
-      ],
-      "depNameTemplate": "hadolint/hadolint",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update nvm version in Makefile",
-      "fileMatch": [
-        "(^|/)Makefile$"
-      ],
-      "matchStrings": [
-        "NVM_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
-      ],
-      "depNameTemplate": "nvm-sh/nvm",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^v(?<version>.+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Update gqlgen version in Makefile",
-      "fileMatch": [
-        "(^|/)Makefile$"
-      ],
-      "matchStrings": [
-        "GQLGEN_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
-      ],
-      "depNameTemplate": "99designs/gqlgen",
-      "datasourceTemplate": "github-releases"
+        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)( versioning=(?<versioning>[^\\s]+))?\\n[A-Z_]+\\s*:=\\s*(?<currentValue>[^\\s]+)"
+      ]
     },
     {
       "customType": "regex",
       "description": "Update gvm commit SHA in Makefile",
-      "fileMatch": [
-        "(^|/)Makefile$"
-      ],
+      "managerFilePatterns": ["/^Makefile$/"],
       "matchStrings": [
         "GVM_SHA\\s*:=\\s*(?<currentDigest>[a-f0-9]+)\\s"
       ],
@@ -147,6 +90,12 @@
         "Makefile"
       ],
       "groupName": "Makefile tool versions"
+    },
+    {
+      "description": "Group type definitions",
+      "matchPackageNames": ["/^@types\\//"],
+      "groupName": "type-definitions",
+      "automerge": true
     }
   ]
 }

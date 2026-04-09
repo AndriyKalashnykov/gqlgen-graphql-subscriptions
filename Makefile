@@ -4,10 +4,15 @@ VERSION := $(shell grep 'const Version =' server.go | cut -d'"' -f2)
 GOFLAGS=-mod=mod
 
 # === Tool Versions (pinned) ===
+# renovate: datasource=github-releases depName=golangci/golangci-lint
 GOLANGCI_VERSION := 2.11.4
+# renovate: datasource=github-releases depName=99designs/gqlgen
 GQLGEN_VERSION := v0.17.89
+# renovate: datasource=github-releases depName=hadolint/hadolint
 HADOLINT_VERSION := 2.14.0
+# renovate: datasource=github-releases depName=nektos/act
 ACT_VERSION := 0.2.87
+# renovate: datasource=github-releases depName=nvm-sh/nvm
 NVM_VERSION := 0.40.4
 # Parse Node version from .nvmrc (fallback to 24 if missing)
 NODE_VERSION := $(shell cat .nvmrc 2>/dev/null || echo 24)
