@@ -7,10 +7,10 @@ GraphQL Subscriptions API built with Go, [gqlgen](https://github.com/99designs/g
 ## Tech Stack
 
 - **Language**: Go 1.26
-- **GraphQL**: gqlgen v0.17.86
+- **GraphQL**: gqlgen v0.17.89
 - **Router**: Echo v5
 - **Pub/Sub**: Redis (go-redis/v9)
-- **Frontend**: JavaScript (Yarn)
+- **Frontend**: TypeScript / React (Yarn)
 - **Container**: Docker / Docker Compose
 
 ## Project Structure

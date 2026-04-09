@@ -3,12 +3,12 @@
   "extends": [
     "config:best-practices",
     ":semanticCommitType(chore)",
+    ":semanticCommitScope(all)",
     ":separatePatchReleases"
   ],
   "postUpdateOptions": [
     "gomodTidy"
   ],
-  "commitMessagePrefix": "chore(all): ",
   "commitMessageAction": "update",
   "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
   "labels": [
@@ -80,14 +80,41 @@
       "depNameTemplate": "nvm-sh/nvm",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^v(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update gqlgen version in Makefile",
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        "GQLGEN_VERSION\\s*:=\\s*(?<currentValue>\\S+)\\s"
+      ],
+      "depNameTemplate": "99designs/gqlgen",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Update gvm commit SHA in Makefile",
+      "fileMatch": [
+        "(^|/)Makefile$"
+      ],
+      "matchStrings": [
+        "GVM_SHA\\s*:=\\s*(?<currentDigest>[a-f0-9]+)\\s"
+      ],
+      "currentValueTemplate": "master",
+      "depNameTemplate": "moovweb/gvm",
+      "datasourceTemplate": "git-refs",
+      "packageNameTemplate": "https://github.com/moovweb/gvm"
     }
   ],
   "packageRules": [
     {
-      "description": "Wait 3 days before automerging major updates",
+      "description": "Do not automerge major updates — require human review",
       "matchUpdateTypes": [
         "major"
       ],
+      "automerge": false,
       "minimumReleaseAge": "3 days"
     },
     {

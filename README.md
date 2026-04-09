@@ -129,8 +129,8 @@ GitHub Actions runs on every push to `main`, tags `v*`, and pull requests.
 
 ## References
 
-- https://redis.io/topics/streams-intro
-- https://github.com/go-redis/redis
-- https://pkg.go.dev/github.com/go-redis/redis/v9
+- https://redis.io/docs/latest/develop/data-types/streams/
+- https://github.com/redis/go-redis
+- https://pkg.go.dev/github.com/redis/go-redis/v9
 - https://towardsdev.com/scalable-event-streaming-with-redis-streams-and-go-dee5fbe8982c
 - https://github.com/gmrdn/redis-streams-go

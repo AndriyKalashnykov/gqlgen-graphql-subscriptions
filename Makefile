@@ -1,11 +1,11 @@
 .DEFAULT_GOAL := help
 
-VERSION := $(shell cat server.go | grep "const Version ="| cut -d"\"" -f2)
+VERSION := $(shell grep 'const Version =' server.go | cut -d'"' -f2)
 GOFLAGS=-mod=mod
 
 # === Tool Versions (pinned) ===
 GOLANGCI_VERSION := 2.11.4
-GQLGEN_VERSION := v0.17.86
+GQLGEN_VERSION := v0.17.89
 HADOLINT_VERSION := 2.14.0
 ACT_VERSION := 0.2.87
 NVM_VERSION := 0.40.4
@@ -17,7 +17,7 @@ GO_VERSION := $(shell grep -oP '^go \K[0-9.]+' go.mod)
 # In CI, actions/setup-go provides Go directly — gvm is not needed.
 # Locally, gvm sets GOROOT/GOPATH/PATH in a subshell.
 HAS_GVM := $(shell [ -s "$$HOME/.gvm/scripts/gvm" ] && echo true || echo false)
-GVM_SHA := dd6525539fa4b771840846f8319fad303c7d0a8d2
+GVM_SHA := dd652539fa4b771840846f8319fad303c7d0a8d2
 
 define go-exec
 $(if $(filter true,$(HAS_GVM)),bash -c '. $$GVM_ROOT/scripts/gvm && gvm use go$(GO_VERSION) >/dev/null && $(1)',bash -c '$(1)')
@@ -82,7 +82,7 @@ deps:
 		echo "gvm installed. Please restart your shell or run:"; \
 		echo "  source $$HOME/.gvm/scripts/gvm"; \
 		echo "Then re-run 'make deps' to install Go $(GO_VERSION) via gvm."; \
-		exit 0; \
+		exit 1; \
 	fi
 	@if [ "$(HAS_GVM)" = "true" ]; then \
 		bash -c '. $$GVM_ROOT/scripts/gvm && gvm list' 2>/dev/null | grep -q "go$(GO_VERSION)" || { \
@@ -93,10 +93,10 @@ deps:
 		command -v go >/dev/null 2>&1 || { echo "Error: Go required. Install gvm from https://github.com/moovweb/gvm or Go from https://go.dev/dl/"; exit 1; }; \
 	fi
 	@$(call go-exec,command -v golangci-lint) >/dev/null 2>&1 || { echo "Installing golangci-lint $(GOLANGCI_VERSION)..."; \
-		$(call go-exec,go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v$(GOLANGCI_VERSION)); \
+		$(call go-exec,go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v$(GOLANGCI_VERSION)) || exit 1; \
 	}
 	@$(call go-exec,command -v gqlgen) >/dev/null 2>&1 || { echo "Installing gqlgen $(GQLGEN_VERSION)..."; \
-		$(call go-exec,export GOFLAGS=$(GOFLAGS) && go install github.com/99designs/gqlgen@$(GQLGEN_VERSION)); \
+		$(call go-exec,export GOFLAGS=$(GOFLAGS) && go install github.com/99designs/gqlgen@$(GQLGEN_VERSION)) || exit 1; \
 	}
 	@command -v yarn >/dev/null 2>&1 || { echo "Installing yarn..."; npm install -g yarn; }
 
@@ -110,7 +110,7 @@ deps-act:
 deps-hadolint:
 	@command -v hadolint >/dev/null 2>&1 || { echo "Installing hadolint $(HADOLINT_VERSION)..."; \
 		curl -sSfL -o /tmp/hadolint https://github.com/hadolint/hadolint/releases/download/v$(HADOLINT_VERSION)/hadolint-Linux-x86_64 && \
-		install -m 755 /tmp/hadolint /usr/local/bin/hadolint && \
+		sudo install -m 755 /tmp/hadolint /usr/local/bin/hadolint && \
 		rm -f /tmp/hadolint; \
 	}
 
@@ -134,10 +134,10 @@ release:
 		echo "$$newtag" | grep -qE "^v[0-9]+\.[0-9]+\.[0-9]+$$" || { echo "Error: Tag must match vN.N.N"; exit 1; } && \
 		echo -n "Create and push $$newtag? [y/N] " && read ans && [ "$${ans:-N}" = y ] && \
 		sed -i "s/const Version = \"$(VERSION)\"/const Version = \"$$newtag\"/" server.go && \
-		git add -A && \
+		git add server.go && \
 		git commit -s -m "Cut $$newtag release" && \
-		git tag $$newtag && \
-		git push origin $$newtag && \
+		git tag "$$newtag" && \
+		git push origin "$$newtag" && \
 		git push && \
 		echo "Done."'
 
@@ -147,7 +147,7 @@ update: clean
 
 #version: @ Print current version(tag)
 version:
-	@echo ${VERSION}
+	@echo $(VERSION)
 
 #redis-up: @ Start Redis
 redis-up: redis-down
