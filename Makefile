@@ -142,6 +142,7 @@ trivy-fs: deps-trivy
 #lint: @ Run golangci-lint (includes gocritic, gosec) and hadolint
 lint: deps deps-hadolint
 	@$(call go-exec,golangci-lint run ./...)
+	@$(call go-exec,go mod verify)
 	@$(call go-exec,go mod tidy && git diff --exit-code go.mod go.sum) || { echo "Error: go.mod/go.sum not tidy. Run 'go mod tidy'."; exit 1; }
 	@hadolint Dockerfile
 	@hadolint frontend/Dockerfile
