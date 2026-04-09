@@ -9,15 +9,3 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 RUN chown -R nginx:nginx /usr/share/nginx
 USER nginx
-
-#FROM node:14.17.6
-#WORKDIR /app
-#COPY package.json ./
-#COPY package-lock.json ./
-#COPY ./public ./public
-#COPY ./src ./src
-#COPY ./package.json ./package.json
-#COPY ./package-lock.json ./package-lock.json
-#RUN npx browserslist@latest --update-db
-#RUN npm ci --production
-#CMD ["npm", "run", "start"]

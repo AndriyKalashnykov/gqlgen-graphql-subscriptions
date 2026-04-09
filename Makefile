@@ -59,13 +59,13 @@ run: build kill-backend
 image-build: generate
 	@docker buildx build --load -t gqlgen-graphql-subscriptions .
 
-#build-frontend: @ Build JS client frontend
+#build-frontend: @ Build frontend client
 build-frontend:
-	@cd ./frontend && yarn install && yarn build
+	@cd ./frontend && pnpm install && pnpm run build
 
-#run-frontend: @ Run JS client frontend
+#run-frontend: @ Run frontend client
 run-frontend: build-frontend
-	@cd ./frontend && yarn start
+	@cd ./frontend && pnpm run start
 
 #image-frontend: @ Build JS client Docker image
 image-frontend: build-frontend
@@ -100,7 +100,7 @@ deps:
 	@$(call go-exec,command -v gqlgen) >/dev/null 2>&1 || { echo "Installing gqlgen $(GQLGEN_VERSION)..."; \
 		$(call go-exec,export GOFLAGS=$(GOFLAGS) && go install github.com/99designs/gqlgen@$(GQLGEN_VERSION)) || exit 1; \
 	}
-	@command -v yarn >/dev/null 2>&1 || { echo "Installing yarn..."; npm install -g yarn; }
+	@command -v pnpm >/dev/null 2>&1 || { echo "Installing pnpm via corepack..."; corepack enable pnpm; }
 
 #deps-act: @ Install act for local CI (idempotent)
 deps-act:

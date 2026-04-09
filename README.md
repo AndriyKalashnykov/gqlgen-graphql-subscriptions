@@ -24,7 +24,7 @@ make run-frontend      # start JS client at http://localhost:3000 (Terminal 3)
 | [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
 | [Docker](https://www.docker.com/) | latest | Container builds and Redis |
 | [Node.js / nvm](https://github.com/nvm-sh/nvm) | 24 (see `.nvmrc`) | Frontend build toolchain |
-| [Yarn](https://yarnpkg.com/) | 1.x | Frontend package manager |
+| [pnpm](https://pnpm.io/) | 10+ | Frontend package manager |
 | [curl](https://curl.se/) | latest | HTTP client (optional) |
 
 Install all required dependencies:

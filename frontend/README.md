@@ -7,13 +7,9 @@ The following will re-install the node modules and start front-end
 ```bash
 cd frontend
 
-yarn add @apollo/client graphql subscriptions-transport-ws svgo
-yarn add @chakra-ui/react @emotion/react @emotion/styled framer-motion
-yarn add @chakra-ui/styled-system @babel/core @testing-library/dom @babel/plugin-syntax-flow @babel/plugin-transform-react-jsx
-yarn install
-yarn upgrade --latest
-yarn build
-yarn start
+pnpm install
+pnpm run build
+pnpm run start
 ```
 
 ### Open a second browser
